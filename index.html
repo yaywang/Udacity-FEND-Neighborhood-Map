@@ -13,38 +13,24 @@
     <div class="container">
         <div class="nav">
             <h3>The Best of Thong Lor</h3>
-            <label>Search<input type="search" data-bind="textInput: searchInput" /></label>
+            <label>Search
+                <input type="search" data-bind="textInput: searchInput" />
+            </label>
             <ul data-bind="foreach: currentPlaces">
                 <li data-bind="text: $data.name"></li>
             </ul>
-        </div><!-- The li element gap hack
-        --><div class="mapDiv" data-bind="deleteMarkers: oldMarkers, addMarkers: markers">
+        </div>
+        <!-- The li element gap hack
+        -->
+        <div class="mapDiv" data-bind="deleteMarkers: oldMarkers, addMarkers: markers">
             <div id="map">
             </div>
         </div>
     </div>
     <script src="js/jquery-1.11.3.min.js"></script>
-    <script>
-    var map,
-        infoWindow;
-
-    function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-            center: {
-                lat: 13.732065,
-                lng: 100.576528
-            },
-            zoom: 15
-        });
-
-        infoWindow = new google.maps.InfoWindow({
-            content: ''
-        });
-    }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUYVeHTdUlx9T8XRUwFQKfHsaSJefVSdQ&signed_in=true&callback=initMap"></script>
     <script src="js/knockout-3.2.0.js"></script>
     <script src="js/app.js"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUYVeHTdUlx9T8XRUwFQKfHsaSJefVSdQ&signed_in=true&callback=init" onerror="googleError()"></script>
 </body>
 
 </html>
