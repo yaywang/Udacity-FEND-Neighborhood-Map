@@ -16,11 +16,11 @@
             <label>Search
                 <input type="search" data-bind="textInput: searchInput" />
             </label>
-            <ul data-bind="foreach: currentPlaces">
-                <li data-bind="text: $data.name"></li>
+            <ul data-bind="foreach: currentMarkers">
+                <li data-bind="text: $data.title"></li>
             </ul>
         </div><!-- The inline-block div gap hack. Beatifiers will break this !!!
-        --><div class="mapDiv" data-bind="deleteMarkers: oldMarkers, addMarkers: markers">
+        --><div class="mapDiv">
             <div id="map">
             </div>
         </div>

@@ -46,6 +46,7 @@ var ViewModel = function() {
     var self = this;
 
     // Instantiate Google Maps objects
+
     var map = new google.maps.Map(document.getElementById('map'), {
         center: {
             lat: 13.732065,
@@ -58,73 +59,53 @@ var ViewModel = function() {
         content: ''
     });
 
-    // Define how markers interact with the DOM elements
-    // TODO: those two seems to be on the borderline of being unnecessary
-    ko.bindingHandlers.addMarkers = {
-        update: function(element, valueAccessor) {
-            var markers = ko.unwrap(valueAccessor());
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(map);
-            }
-        }
-    };
-
-    ko.bindingHandlers.deleteMarkers = {
-        update: function(element, valueAccessor) {
-            var markers = ko.unwrap(valueAccessor());
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(null);
-            }
-        }
-    };
-
-    self.searchInput = ko.observable('');
-
-    self.currentPlaces = ko.computed(function() {
-        var searchInput = self.searchInput().toLowerCase();
-        var currentPlaces = [];
-        for (var i = 0; i < places.length; i++) {
-            // the search functionality is in the test
-            if (places[i].name.toLowerCase().indexOf(searchInput) >= 0) {
-                currentPlaces.push(places[i]);
-            }
-        }
-        return currentPlaces;
-    });
-
     // Executed on each marker's click event
     function setInfoWindow(marker) {
         infoWindow.setContent(marker.title);
         infoWindow.open(map, marker);
     }
 
-    self.markers = ko.computed(function() {
-        var places = self.currentPlaces();
-        var markers = [];
-        for (var i = 0; i < places.length; i++) {
-            var marker = new google.maps.Marker({
-                position: places[i].geocode,
-                title: places[i].name
-            });
-            // TODO: why you have to return a function within the function?
-            // TODO: why you cannot use this for the marker?
-            // TODO: read more about IFFE and scoping, and then think again.
-            marker.addListener('click', (function(markerCopy) {
-                return function() {
-                    setInfoWindow(markerCopy);
-                };
-            })(marker));
-            markers.push(marker);
+    // The array of all markers
+    var markers = [];
+    for (var i = 0; i < places.length; i++) {
+        var marker = new google.maps.Marker({
+            position: places[i].geocode,
+            title: places[i].name
+        });
+
+        marker.setMap(map)
+        // TODO: why you have to return a function within the function?
+        // TODO: why you cannot use this for the marker?
+        // TODO: read more about IFFE and scoping, and then think again.
+        marker.addListener('click', (function(markerCopy) {
+            return function() {
+                setInfoWindow(markerCopy);
+            };
+        })(marker));
+        markers.push(marker);
+    }
+
+
+    // Observables
+
+    self.searchInput = ko.observable('');
+    // For both toggling marker visibiliy and current names in navigation, a convenient hack
+    self.currentMarkers = ko.computed(function() {
+        var searchInput = self.searchInput().toLowerCase();
+        var currentMarkers = [];
+        for (var i = 0; i < markers.length; i++) {
+            // The search functionality is in the test
+            if (markers[i].title.toLowerCase().indexOf(searchInput) >= 0) {
+                currentMarkers.push(markers[i]);
+
+                //  Set visibility as a side effect.
+                markers[i].setVisible(true);
+            } else {
+                markers[i].setVisible(false);
+            }
         }
-        return markers;
+        return currentMarkers;
     });
-
-    self.oldMarkers = ko.observableArray([]);
-
-    // Access markers array before any change, and assign the array to oldMarkers
-    self.markers.subscribe(function(oldMarkers) {
-        if (oldMarkers) self.oldMarkers(oldMarkers);
-    }, null, 'beforeChange');
 };
 
 // callback on Google Maps loading success
