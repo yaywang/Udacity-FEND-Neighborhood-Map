@@ -1,0 +1,62 @@
+h3,
+ul,
+li {
+	padding: 0;
+	margin: 0;
+}
+
+
+li {
+	list-style: none;
+}
+
+body {
+	font-family: "San Francisco", sans-serif;
+}
+
+.container {
+	width: 90%;
+	margin: auto;
+	margin-top: 32px;
+}
+
+.mapDiv,
+.nav {
+	display: inline-block;
+}
+
+.nav {
+	vertical-align: top;
+}
+
+h3 {
+	margin-bottom: 8px;
+}
+
+input {
+	margin-left: 8px;
+}
+
+li {
+	margin: 2px;
+}
+
+ul {
+	margin-top: 8px;
+}
+
+.nav {
+	width: 200px;
+}
+
+.mapDiv {
+	width: calc(100% - 200px);
+	height: 90vh;
+}
+
+#map {
+	width: 100%;
+	height: 100%;
+}
+
+
