@@ -19,10 +19,8 @@
             <ul data-bind="foreach: currentPlaces">
                 <li data-bind="text: $data.name"></li>
             </ul>
-        </div>
-        <!-- The li element gap hack
-        -->
-        <div class="mapDiv" data-bind="deleteMarkers: oldMarkers, addMarkers: markers">
+        </div><!-- The inline-block div gap hack. Beatifiers will break this !!!
+        --><div class="mapDiv" data-bind="deleteMarkers: oldMarkers, addMarkers: markers">
             <div id="map">
             </div>
         </div>

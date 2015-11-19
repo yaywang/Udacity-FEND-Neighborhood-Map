@@ -45,7 +45,7 @@ var places = [{
 var ViewModel = function() {
     var self = this;
 
-    // Instantiate new Google Maps objects
+    // Instantiate Google Maps objects
     var map = new google.maps.Map(document.getElementById('map'), {
         center: {
             lat: 13.732065,
@@ -58,7 +58,7 @@ var ViewModel = function() {
         content: ''
     });
 
-    // How markers interact with the DOM elements
+    // Define how markers interact with the DOM elements
     // TODO: those two seems to be on the borderline of being unnecessary
     ko.bindingHandlers.addMarkers = {
         update: function(element, valueAccessor) {
@@ -93,10 +93,10 @@ var ViewModel = function() {
     });
 
     // Executed on each marker's click event
-    self.setInfoWindow = function(marker) {
+    function setInfoWindow(marker) {
         infoWindow.setContent(marker.title);
         infoWindow.open(map, marker);
-    };
+    }
 
     self.markers = ko.computed(function() {
         var places = self.currentPlaces();
@@ -111,7 +111,7 @@ var ViewModel = function() {
             // TODO: read more about IFFE and scoping, and then think again.
             marker.addListener('click', (function(markerCopy) {
                 return function() {
-                    self.setInfoWindow(markerCopy);
+                    setInfoWindow(markerCopy);
                 };
             })(marker));
             markers.push(marker);
@@ -127,10 +127,12 @@ var ViewModel = function() {
     }, null, 'beforeChange');
 };
 
+// callback on Google Maps loading success
 function init() {
     ko.applyBindings(new ViewModel());
 }
 
+// callback on Google Maps loading error
 function googleError() {
     document.body.innerHTML = "<h2>Sorry Google Maps didn't load. Please check your internet connection.</h2>";
 }
