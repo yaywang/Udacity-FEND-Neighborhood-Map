@@ -59,8 +59,10 @@ var ViewModel = function() {
         content: ''
     });
 
-    // Executed on each marker's click event
-    function setInfoWindow(marker) {
+    /* Execute on each marker's click event, add in markers array
+     * and bind to click on list elements
+     */
+    self.setInfoWindow = function(marker) {
         infoWindow.setContent(marker.title);
         infoWindow.open(map, marker);
     }
@@ -74,12 +76,12 @@ var ViewModel = function() {
         });
 
         marker.setMap(map)
-        // TODO: why you have to return a function within the function?
-        // TODO: why you cannot use this for the marker?
-        // TODO: read more about IFFE and scoping, and then think again.
+            // TODO: why you have to return a function within the function?
+            // TODO: why you cannot use this for the marker?
+            // TODO: read more about IFFE and scoping, and then think again.
         marker.addListener('click', (function(markerCopy) {
             return function() {
-                setInfoWindow(markerCopy);
+                self.setInfoWindow(markerCopy);
             };
         })(marker));
         markers.push(marker);
@@ -89,16 +91,17 @@ var ViewModel = function() {
     // Observables
 
     self.searchInput = ko.observable('');
-    // For both toggling marker visibiliy and current names in navigation, a convenient hack
+    // Search for currentMarkers, also set them visible.
     self.currentMarkers = ko.computed(function() {
+        // Close the infowindow as the markers on map change
+        infoWindow.close();
+
         var searchInput = self.searchInput().toLowerCase();
         var currentMarkers = [];
         for (var i = 0; i < markers.length; i++) {
-            // The search functionality is in the test
+            // Search in the test now
             if (markers[i].title.toLowerCase().indexOf(searchInput) >= 0) {
                 currentMarkers.push(markers[i]);
-
-                //  Set visibility as a side effect.
                 markers[i].setVisible(true);
             } else {
                 markers[i].setVisible(false);
