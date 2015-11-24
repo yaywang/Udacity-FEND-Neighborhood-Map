@@ -94,7 +94,7 @@ var ViewModel = function() {
         var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
         var url = 'https://api.foursquare.com/v2/venues/';
         var processedResponse = {};
-        $.getJSON(url + marker.apiData.fourSquareId +
+        $.getJSON(url + marker.apiData.fourSquareId + '?' +
             'client_id=' + clientId + '&client_secret=' + clientSecret + '&v=20151102',
             function(data) {
                 processedResponse.rating = data.response.rating;
@@ -106,6 +106,9 @@ var ViewModel = function() {
         infoWindow.setContent(infoWindowContent);
         infoWindow.open(map, marker);
     };
+
+
+
 
     // The array of all markers
     var markers = [];
