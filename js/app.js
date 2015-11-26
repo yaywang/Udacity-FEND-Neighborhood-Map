@@ -92,23 +92,36 @@ var ViewModel = function() {
     self.setInfoWindow = function(marker) {
         var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ';
         var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
+
         var url = 'https://api.foursquare.com/v2/venues/';
-        var processedResponse = {};
-        $.getJSON(url + marker.apiData.fourSquareId + '?' +
-            'client_id=' + clientId + '&client_secret=' + clientSecret + '&v=20151102',
-            function(data) {
-                processedResponse.rating = data.response.rating;
-            }
-        );
+        url += marker.apiData.fourSquareId;
+        url += '?' + 'client_id=' + clientId;
+        url += '&client_secret=' + clientSecret;
+        url += '&v=20151102';
 
-        infoWindowContent = marker.title + ' ' + processedResponse.rating;
+        $.getJSON(url)
+            .done(
+                function(data) {
+                    var processedResponse = {};
+                    processedResponse.rating = data.response.venue.rating;
 
-        infoWindow.setContent(infoWindowContent);
-        infoWindow.open(map, marker);
+
+                    infoWindowContent = '<h3>' + marker.title;
+                    if (processedResponse.rating) {
+                        infoWindowContent += ' ' + '<h5>' + 'Rating: ' + processedResponse.rating + '</h5>';
+                    }
+                    infoWindowContent += '</h3>';
+
+                    infoWindow.setContent(infoWindowContent);
+                    infoWindow.open(map, marker);
+                })
+            .fail(
+                function(error) {
+                    infoWindowContent = '<p>' + marker.title + '</p>';
+                    infoWindow.setContent(infoWindowContent);
+                    infoWindow.open(map, marker);
+                });
     };
-
-
-
 
     // The array of all markers
     var markers = [];
@@ -130,7 +143,6 @@ var ViewModel = function() {
         })(marker));
         markers.push(marker);
     }
-
 
     // Observables
 
@@ -164,6 +176,3 @@ function init() {
 function googleError() {
     document.body.innerHTML = "<h2>Sorry Google Maps didn't load. Please check your internet connection.</h2>";
 }
-
-
-//'https://api.foursquare.com/v2/venues/4ba0d246f964a520f47f37e3&client_id=MYP…&client_secret=5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN&v=20151102'
