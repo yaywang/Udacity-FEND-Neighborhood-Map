@@ -4,6 +4,9 @@ var Place = function(name, geocode, apiData) {
     this.apiData = apiData;
 };
 
+
+// Add apiData.fourSquareId to ensure perfect match from the fourSquareSearch results. It's optional.
+
 var places = [{
     name: 'the Hive',
     geocode: {
@@ -73,7 +76,6 @@ var ViewModel = function() {
     var self = this;
 
     // Instantiate Google Maps objects
-
     var map = new google.maps.Map(document.getElementById('map'), {
         center: {
             lat: 13.732065,
@@ -90,47 +92,58 @@ var ViewModel = function() {
      * and bind to click on list elements
      */
     self.setInfoWindow = function(marker) {
+        var infoWindowContent;
+        infoWindowContent = '<h3>' + marker.title + '</h3>';
+        infoWindowContent += ' ';
+        infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
+        infoWindow.setContent(infoWindowContent);
+        infoWindow.open(map, marker);
+    };
+
+    // Make API calls and store the results as the marker's property
+    function addAyncData(marker) {
+        // Foursquare API call.
+        /* The response has some slight chance to contain unwanted locations
+         * The success callback adds an extra filter to further lower the chance.
+         */
         var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ';
         var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
 
-        var url = 'https://api.foursquare.com/v2/venues/';
-        url += marker.apiData.fourSquareId;
-        url += '?' + 'client_id=' + clientId;
+        var url = 'https://api.foursquare.com/v2/venues/search?';
+        url += 'll=' + marker.geocode.lat + ',' + marker.geocode.lng;
+        url += '&query=' + marker.title;
+        url += '&intent=match';
+        url += '&client_id=' + clientId;
         url += '&client_secret=' + clientSecret;
-        url += '&v=20151102';
+        url += '&v=20151124';
 
         $.getJSON(url)
-            .done(
-                function(data) {
-                    var processedResponse = {};
-                    processedResponse.rating = data.response.venue.rating;
-
-
-                    infoWindowContent = '<h3>' + marker.title;
-                    if (processedResponse.rating) {
-                        infoWindowContent += ' ' + '<h5>' + 'Rating: ' + processedResponse.rating + '</h5>';
+            .done(function(data) {
+                marker.fourSquareData = data.response.venues[0];
+                for (var i = 0; i < data.response.venues; i++) {
+                    if (data.response.venues[i]._id === marker.apiData.fourSquareId) {
+                        marker.fourSquareData = data.response.venues[i];
                     }
-                    infoWindowContent += '</h3>';
-
-                    infoWindow.setContent(infoWindowContent);
-                    infoWindow.open(map, marker);
-                })
-            .fail(
-                function(error) {
-                    infoWindowContent = '<p>' + marker.title + '</p>';
-                    infoWindow.setContent(infoWindowContent);
-                    infoWindow.open(map, marker);
-                });
-    };
+                }
+            })
+            .fail(function(error) {
+                marker.fourSquareData = false;
+            });
+    }
 
     // The array of all markers
     var markers = [];
     for (var i = 0; i < places.length; i++) {
         var marker = new google.maps.Marker({
             position: places[i].geocode,
-            title: places[i].name,
-            apiData: places[i].apiData
+            title: places[i].name
         });
+
+        marker.geocode = places[i].geocode;
+
+        if (places[i].apiData) {
+            marker.apiData = places[i].apiData;
+        }
 
         marker.setMap(map);
         // TODO: why you have to return a function within the function?
@@ -141,15 +154,21 @@ var ViewModel = function() {
                 self.setInfoWindow(markerCopy);
             };
         })(marker));
+
+        (function(marker) {
+            addAyncData(marker);
+        })(marker);
+
         markers.push(marker);
     }
+
 
     // Observables
 
     self.searchInput = ko.observable('');
     // Search for currentMarkers, also set them visible.
     self.currentMarkers = ko.computed(function() {
-        // Close the infowindow as the markers on map change
+        // Close the infowindow as this obervable changes value
         infoWindow.close();
 
         var searchInput = self.searchInput().toLowerCase();
@@ -167,12 +186,10 @@ var ViewModel = function() {
     });
 };
 
-// callback on Google Maps loading success
 function init() {
     ko.applyBindings(new ViewModel());
 }
 
-// callback on Google Maps loading error
 function googleError() {
     document.body.innerHTML = "<h2>Sorry Google Maps didn't load. Please check your internet connection.</h2>";
 }
