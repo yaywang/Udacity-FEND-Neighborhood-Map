@@ -85,6 +85,10 @@ li {
     background-color: #CCC;
 }
 
+li:first-child {
+    margin-top: 0;
+}
+
 .mapDiv {
     position: absolute;
     top: 0;
