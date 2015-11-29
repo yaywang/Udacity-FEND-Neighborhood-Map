@@ -88,10 +88,17 @@ var ViewModel = function() {
         content: ''
     });
 
+
+
     /* Execute on each marker's click event, add in markers array
      * and bind to click on list elements
      */
     self.setInfoWindow = function(marker) {
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setAnimation(null);
+        }
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+
         var infoWindowContent;
         infoWindowContent = '<h3>' + marker.title + '</h3>';
         infoWindowContent += ' ';
@@ -146,6 +153,7 @@ var ViewModel = function() {
         }
 
         marker.setMap(map);
+
         // TODO: why you have to return a function within the function?
         // TODO: why you cannot use this for the marker?
         // TODO: read more about IFFE and scoping, and then think again.
@@ -155,13 +163,19 @@ var ViewModel = function() {
             };
         })(marker));
 
+        marker.addListener('mouseout', (function(markerCopy) {
+            return function() {
+                markerCopy.setAnimation(null);
+            };
+        })(marker));
+
+
         (function(marker) {
             addAyncData(marker);
         })(marker);
 
         markers.push(marker);
     }
-
 
     // Observables
 
