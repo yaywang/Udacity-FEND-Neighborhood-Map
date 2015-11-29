@@ -14,9 +14,9 @@
         <input type="checkbox" id="menu" name="menu" class="menu-checkbox">
         <div class="menu">
             <label class="menu-toggle" for="menu"><span>Toggle</span></label>
-            <label class="search-bar">
+            <div class="search-bar">
                 <input type="search" data-bind="textInput: searchInput" value="Search a place"/>
-            </label>
+            </div>
             <ul data-bind="foreach: currentMarkers">
                 <li data-bind="text: $data.title, click: $root.setInfoWindow"></li>
             </ul>
