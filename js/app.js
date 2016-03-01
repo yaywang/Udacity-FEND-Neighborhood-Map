@@ -90,7 +90,8 @@ var ViewModel = function() {
             lat: 13.732065,
             lng: 100.576528
         },
-        zoom: 15
+        zoom: 16,
+        styles: paleDownMapTypeArray
     });
 
     var infoWindow = new google.maps.InfoWindow({
@@ -161,7 +162,6 @@ var ViewModel = function() {
         },
         grocery: {
             url: 'icons/grocery-24.png'
-            //size:  new google.maps.Size(5, 5),
             //origin: new google.maps.Point(0, 0),
         }
     };
