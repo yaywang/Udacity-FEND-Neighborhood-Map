@@ -1,3 +1,5 @@
+// TODO: whether to define another observable or pollute the marker class, an object defined by another app?
+
 var Place = function(name, geocode, apiData) {
     this.name = name;
     this.geocode = geocodep;
@@ -160,15 +162,19 @@ var ViewModel = function() {
         marker.addListener('click', (function(markerCopy) {
             return function() {
                 self.setInfoWindow(markerCopy);
+                // End bouncing after a default length of effect
+                setTimeout(function() {
+                    markerCopy.setAnimation(null);
+                }, 5000)
             };
         })(marker));
-
-        marker.addListener('mouseout', (function(markerCopy) {
+        
+        // End bouncing if you close the infoWindow before the default length of effect comes to an end
+        infoWindow.addListener('closeclick', (function(markerCopy) {
             return function() {
                 markerCopy.setAnimation(null);
-            };
+            }
         })(marker));
-
 
         (function(marker) {
             addAyncData(marker);
