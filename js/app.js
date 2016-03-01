@@ -15,6 +15,7 @@ var places = [{
         lat: 13.732065,
         lng: 100.576528
     },
+    type: 'workingPlace',
     apiData: {
         fourSquareId: '537c7102498e0dae7372c8dd'
     }
@@ -24,6 +25,7 @@ var places = [{
         lat: 13.733611,
         lng: 100.581482
     },
+    type: 'bar',
     apiData: {
         fourSquareId: '4d849d2d5ad3a09392b6d2fd'
     }
@@ -33,6 +35,7 @@ var places = [{
         lat: 13.732610,
         lng: 100.576364
     },
+    type: 'grocery',
     apiData: {
         fourSquareId: '4c00b1dbdf6c0f4730d98b22'
     }
@@ -42,6 +45,7 @@ var places = [{
         lat: 13.734618,
         lng: 100.582011
     },
+    type: 'grocery',
     apiData: {
         fourSquareId: '4b8e745ff964a520792333e3'
     }
@@ -51,6 +55,7 @@ var places = [{
         lat: 13.731103,
         lng: 100.575931
     },
+    type: 'grocery',
     apiData: {
         fourSquareId: '4ceb4f19f8653704af28c2c4'
     }
@@ -60,6 +65,7 @@ var places = [{
         lat: 13.732130,
         lng: 100.579386
     },
+    type: 'restaurant',
     apiData: {
         fourSquareId: '4ba0d246f964a520f47f37e3'
     }
@@ -69,6 +75,7 @@ var places = [{
         lat: 13.734810,
         lng: 100.572196
     },
+    type: 'restaurant',
     apiData: {
         fourSquareId: '4b701198f964a520cb052de3'
     }
@@ -89,7 +96,6 @@ var ViewModel = function() {
     var infoWindow = new google.maps.InfoWindow({
         content: ''
     });
-
 
 
     /* Execute on each marker's click event, add in markers array
@@ -142,11 +148,31 @@ var ViewModel = function() {
 
     // The array of all markers
     var markers = [];
+
+    var icons = {
+        workingPlace: {
+            url: 'icons/building-24.png'
+        },
+        bar: {
+            url: 'icons/bar-24.png'
+        },
+        restaurant: {
+            url: 'icons/restaurant-24.png'
+        },
+        grocery: {
+            url: 'icons/grocery-24.png'
+            //size:  new google.maps.Size(5, 5),
+            //origin: new google.maps.Point(0, 0),
+        }
+    };
+
     for (var i = 0; i < places.length; i++) {
         var marker = new google.maps.Marker({
             position: places[i].geocode,
-            title: places[i].name
+            title: places[i].name,
+            icon: icons[places[i].type]
         });
+
 
         marker.geocode = places[i].geocode;
 
