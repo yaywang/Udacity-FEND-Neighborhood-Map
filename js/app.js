@@ -91,6 +91,7 @@ var ViewModel = function() {
             lng: 100.576528
         },
         zoom: 16,
+        mapTypeControl: false,
         styles: paleDownMapTypeArray
     });
 
