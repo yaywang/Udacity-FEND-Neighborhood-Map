@@ -17,9 +17,11 @@
             <div class="search-bar">
                 <input type="search" data-bind="textInput: searchInput" value="Search a place"/>
             </div>
+            <div class="list-div">   
             <ul data-bind="foreach: currentMarkers">
                 <li data-bind="text: $data.title, click: $root.setInfoWindow"></li>
             </ul>
+            </div>
         </div>
         <!-- The inline-block div gap hack. Beautifiers will break this !!!
         -->

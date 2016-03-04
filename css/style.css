@@ -54,7 +54,6 @@ label:focus {
     display: none;
 }
 
-
 /* fade in checked menu */
 
 .menu-checkbox:checked + .menu {
@@ -76,6 +75,11 @@ h3 {
 
 input {
     width: 200px;
+}
+
+.list-div {
+    height: calc(100% - 60px);
+    overflow: scroll;
 }
 
 li {
