@@ -29,7 +29,7 @@ label:focus {
     width: 240px;
     height: 100vh;
     transform: translate3d(-240px, 0, 0);
-    transition: transform 0.35s;
+    transition: transform 0.5s;
     z-index: 2;
     opacity: 0.95;
 }

@@ -99,6 +99,8 @@ var ViewModel = function() {
         content: ''
     });
 
+    // Access the checkboxes for controlling the list
+    var listCheckBoxes = $("input[name=menu]");
 
     /* Execute on each marker's click event, add in markers array
      * and bind to click on list elements
@@ -108,6 +110,21 @@ var ViewModel = function() {
             markers[i].setAnimation(null);
         }
         marker.setAnimation(google.maps.Animation.BOUNCE);
+
+        // Turn off the checkBox for controlling the list
+        /* Once the window width is above 960 px, the list won't overlap with markers
+         * Note that this number depends on the zoom level. If it's large
+         * then some markers will be too near to the left edge
+         */
+
+        /* TODO: if you load in portrait and then flip the ipad to landscape, then
+         * the leftmost marker will still be behind the list
+         * in iPhone 5, the label would cover an infowindow on upperleft corner
+         */
+
+        if (window.innerWidth < 960) {
+            listCheckBoxes.prop('checked', false);
+        }   
 
         var infoWindowContent;
         infoWindowContent = '<h3>' + marker.title + '</h3>';
