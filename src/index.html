@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Thong Lor Map</title>
+    <link rel="stylesheet" href="css/san-francisco-font.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <input type="checkbox" id="menu" name="menu" class="menu-checkbox">
+        <div class="menu">
+            <label class="menu-toggle" for="menu"><span>Toggle</span></label>
+            <div class="search-bar">
+                <input type="search" data-bind="textInput: searchInput" value="Search a place"/>
+            </div>
+            <div class="list-div">   
+            <ul data-bind="foreach: currentMarkers">
+                <li data-bind="text: $data.title, click: $root.setInfoWindow"></li>
+            </ul>
+            </div>
+        </div>
+        <!-- The inline-block div gap hack. Beautifiers will break this !!!
+        -->
+        <div class="mapDiv">
+            <div id="map">
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/knockout-3.2.0.js"></script>
+    <script src="js/mapStyle.js"></script>
+    <script src="js/app.js"></script>
+    <script async defer src="http://maps.googleapis.com/maps/api/js?libraries=places&amp;callback=init" onerror="googleError()">
+    se
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+h3,
+ul,
+li {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font-family: "San Francisco", sans-serif;
+}
+
+
+/* The menu */
+
+label {
+    cursor: pointer;
+}
+
+label:focus {
+    outline: none;
+}
+
+.menu {
+    /* TODO: absolute position produces some gap to the left of the browser */
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #fff;
+    width: 240px;
+    height: 100vh;
+    transform: translate3d(-240px, 0, 0);
+    transition: transform 0.5s;
+    z-index: 2;
+    opacity: 0.95;
+}
+
+.menu label.menu-toggle {
+    position: absolute;
+    right: -60px;
+    width: 60px;
+    height: 60px;
+    line-height: 0px;
+    display: block;
+    padding: 0;
+    text-indent: -9999px;
+    /* TODO: add credit and custom fonts */
+    background: #fff url(https://cdn4.iconfinder.com/data/icons/wirecons-free-vector-icons/32/menu-alt-512.png) 50% 50%/25px 25px no-repeat;
+}
+
+
+/* hide inputs */
+
+.menu-checkbox {
+    display: none;
+}
+
+/* fade in checked menu */
+
+.menu-checkbox:checked + .menu {
+    transform: translate3d(0, 0, 0);
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+}
+
+h3 {
+    margin-bottom: 8px;
+}
+
+.search-bar {
+    padding: 20px;
+}
+
+input {
+    width: 200px;
+}
+
+.list-div {
+    height: calc(100% - 60px);
+    overflow: scroll;
+}
+
+li {
+    padding: 20px;
+    margin: 2px;
+    list-style: none;
+    background-color: #CCC;
+}
+
+li:first-child {
+    margin-top: 0;
+}
+
+.mapDiv {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
