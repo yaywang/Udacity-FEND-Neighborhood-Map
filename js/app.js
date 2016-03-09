@@ -124,10 +124,16 @@ var ViewModel = function() {
 
         if (window.innerWidth < 960) {
             listCheckBoxes.prop('checked', false);
-        }   
+        }
 
         var infoWindowContent;
-        infoWindowContent = '<h3>' + marker.title + '</h3>';
+        if (marker.fourSquareData.url) { 
+            infoWindowContent = '<h3><a href="' + marker.fourSquareData.url +'">';
+            infoWindowContent +=  marker.title + '</a></h3>';
+        } else {
+            infoWindowContent =  '<h3>' + marker.title + '</h3>';
+        }
+        
         infoWindowContent += ' ';
         infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
         infoWindow.setContent(infoWindowContent);
@@ -170,27 +176,34 @@ var ViewModel = function() {
 
     var icons = {
         workingPlace: {
-            url: 'icons/building-24.png'
+            url: 'icons/building-24@2x.png'
         },
         bar: {
-            url: 'icons/bar-24.png'
+            url: 'icons/bar-24@2x.png'
         },
         restaurant: {
-            url: 'icons/restaurant-24.png'
+            url: 'icons/restaurant-24@2x.png'
         },
         grocery: {
-            url: 'icons/grocery-24.png'
+            url: 'icons/grocery-24@2x.png'
             //origin: new google.maps.Point(0, 0),
         }
     };
+
+    // Ensure all the icons have the right sizes
+    var processedIcons = {};
+    for (var type in icons) {
+        if (!icons.hasOwnProperty(type)) continue;
+
+        processedIcons[type] = new google.maps.MarkerImage(icons[type].url, null, null, null, new google.maps.Size(36, 36));
+    }
 
     for (var i = 0; i < places.length; i++) {
         var marker = new google.maps.Marker({
             position: places[i].geocode,
             title: places[i].name,
-            icon: icons[places[i].type]
+            icon: processedIcons[places[i].type]
         });
-
 
         marker.geocode = places[i].geocode;
 
