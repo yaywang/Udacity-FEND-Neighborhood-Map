@@ -107,7 +107,7 @@ gulp.task('build', function(cb) {
     return sequence('clean', ['contents', 'styles', 'scripts', 'img'], cb);
 });
 
-// Show psi in the terminal, open both index.html and pizza.html in the browser
+// Show psi in the terminal, open index.html in the browser
 
 gulp.task('open-index', function() {
     return gulp.src('')
