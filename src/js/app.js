@@ -141,7 +141,7 @@ var ViewModel = function() {
     };
 
     // Make API calls and store the results as the marker's property
-    function addAyncData(marker) {
+    function addAsyncData(marker) {
         // Foursquare API call.
         /* The response has some slight chance to contain unwanted locations
          * The success callback adds an extra filter to further lower the chance.
@@ -234,7 +234,7 @@ var ViewModel = function() {
         })(marker));
 
         (function(marker) {
-            addAyncData(marker);
+            addAsyncData(marker);
         })(marker);
 
         markers.push(marker);
