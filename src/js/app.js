@@ -149,16 +149,29 @@ var ViewModel = function() {
         var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ';
         var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
 
-        var url = 'https://api.foursquare.com/v2/venues/search?';
-        url += 'll=' + marker.geocode.lat + ',' + marker.geocode.lng;
-        url += '&query=' + marker.title;
-        url += '&intent=match';
-        url += '&client_id=' + clientId;
-        url += '&client_secret=' + clientSecret;
-        url += '&v=20151124';
+        // var url = 'https://api.foursquare.com/v2/venues/search?';
+        // url += 'll=' + marker.geocode.lat + ',' + marker.geocode.lng;
+        // url += '&query=' + marker.title;
+        // url += '&intent=match';
+        // url += '&client_id=' + clientId;
+        // url += '&client_secret=' + clientSecret;
+        // url += '&v=20151124';
 
-        $.getJSON(url)
+        // Now the intent is the by default, checkin
+        // TODO: suppose neither the fourSquareID and the geocode is the the model 
+        // TODO: this is tricky because you have to think how you are going to ensure 
+        // all the returned locations are what you really like
+        // and the returned categories could decide the icons
+        var searchUrl = 'https://api.foursquare.com/v2/venues/search?'; 
+        searchUrl += 'll=' + map.getCenter().lat() + ',' + map.getCenter().lng();
+        searchUrl += '&query=' + marker.title;
+        searchUrl += '&client_id=' + clientId;
+        searchUrl += '&client_secret=' + clientSecret;
+        searchUrl += '&v=20151124';
+  
+        $.getJSON(searchUrl)
             .done(function(data) {
+                console.log(data);
                 marker.fourSquareData = data.response.venues[0];
                 for (var i = 0; i < data.response.venues; i++) {
                     if (data.response.venues[i]._id === marker.apiData.fourSquareId) {
