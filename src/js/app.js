@@ -1,4 +1,5 @@
 // TODO: whether to define another observable or pollute the marker class, an object defined by another app?
+// TODO: link the places observable to actually the searched places
 
 var Place = function(name, geocode, apiData) {
     this.name = name;
@@ -119,7 +120,7 @@ var ViewModel = function() {
 
         /* TODO: if you load in portrait and then flip the ipad to landscape, then
          * the leftmost marker will still be behind the list
-         * in iPhone 5, the label would cover an infowindow on upperleft corner
+         * in iPhone 5, the label would cover an infowindow on the upperleft corner
          */
 
         if (window.innerWidth < 960) {
