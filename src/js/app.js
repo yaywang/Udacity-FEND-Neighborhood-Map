@@ -182,8 +182,20 @@ var ViewModel = function() {
         
         infoWindowContent += ' ';
         infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
-        infoWindowContent += '</div>'
         
+        /*************  Google StreetView   **************/
+        var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
+        streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
+        streetViewUrl += '&location=' + marker.geocode.lat + ',' + marker.geocode.lng;
+        streetViewUrl += '&fov=90&heading=235&pitch=10';
+        //console.log(marker);
+        //console.log(streetViewUrl);
+        infoWindowContent += '<iframe width="150" height="150" frameborder="0" style="border:0"';
+        infoWindowContent += 'src="' + streetViewUrl;
+        infoWindowContent += '" allowfullscreen></iframe>';
+
+        infoWindowContent += '</div>'
+
         infoWindow.setContent(infoWindowContent);
         infoWindow.open(map, marker);
     };
