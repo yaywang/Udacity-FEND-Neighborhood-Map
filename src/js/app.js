@@ -210,6 +210,7 @@ var ViewModel = function() {
         var searchUrl = 'https://api.foursquare.com/v2/venues/search?'; 
         searchUrl += 'll=' + map.getCenter().lat() + ',' + map.getCenter().lng();
         searchUrl += '&query=' + marker.title;
+        searchUrl += '&limit=2';
         searchUrl += '&client_id=' + clientId;
         searchUrl += '&client_secret=' + clientSecret;
         searchUrl += '&v=20151124';
