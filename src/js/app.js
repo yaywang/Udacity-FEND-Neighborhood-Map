@@ -173,7 +173,8 @@ var ViewModel = function() {
 
         var infoWindowContent;
         if (marker.fourSquareData.url) { 
-            infoWindowContent = '<h3><a href="' + marker.fourSquareData.url +'">';
+            infoWindowContent = '<div class="infoWindowContent">';
+            infoWindowContent += '<h3><a href="' + marker.fourSquareData.url +'">';
             infoWindowContent +=  marker.title + '</a></h3>';
         } else {
             infoWindowContent =  '<h3>' + marker.title + '</h3>';
@@ -181,6 +182,8 @@ var ViewModel = function() {
         
         infoWindowContent += ' ';
         infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
+        infoWindowContent += '</div>'
+        
         infoWindow.setContent(infoWindowContent);
         infoWindow.open(map, marker);
     };
