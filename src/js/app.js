@@ -96,6 +96,49 @@ var ViewModel = function() {
         styles: paleDownMapTypeArray
     });
 
+    /****************** Trial code to add places dynamically ******************/
+   //
+   // // Populate the dynamic model
+   //  map.addListener('center_changed', function() {
+   //      var newCenter = {
+   //          lat: map.getCenter().lat(),
+   //          lng: map.getCenter().lng()
+   //      };
+
+   //      // API request to acquire new locations
+   //      var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ';
+   //      var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
+
+   //      var searchUrl = 'https://api.foursquare.com/v2/venues/explore?'; 
+   //      searchUrl += 'll=' + newCenter.lat + ',' + newCenter.lng;
+   //      searchUrl += '&query=coffee';
+   //      // Here only the last query item is remembered
+   //      // searchUrl += '&query=restaurant';
+   //      // searchUrl += '&query=coworking';
+   //      searchUrl += '&client_id=' + clientId;
+   //      searchUrl += '&client_secret=' + clientSecret;
+   //      searchUrl += '&v=20151124';
+  
+   //      // Response data structure:
+   //      // data.response.groups[0].items
+   //      $.getJSON(searchUrl)
+   //          .done(function(data) {
+   //              // console.log(data.response.groups[0].items);
+   //              data.response.groups[0].items.forEach(function(item) {
+   //                  var place = {};
+   //                  place.name = item.venue.name;
+   //                  place.geocode = {};
+   //                  place.geocode.lat = item.venue.location.lat;
+   //                  place.geocode.lng = item.venue.location.lng; 
+   //                  // This shall be changed later!
+   //                  place.type = "bar";
+   //                  places.push(place);
+   //              })
+   //          })
+   //          .fail(function(error) {
+   //          });
+   //  });
+
     var infoWindow = new google.maps.InfoWindow({
         content: ''
     });
