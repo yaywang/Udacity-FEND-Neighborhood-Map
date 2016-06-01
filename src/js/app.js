@@ -180,6 +180,10 @@ var ViewModel = function() {
             infoWindowContent =  '<h3>' + marker.title + '</h3>';
         }
         
+        // Popularity Indicator:
+        var checkinsCount = marker.fourSquareData.stats.checkinsCount;
+        infoWindowContent += '<h5>FourSquare Checkins: ' + checkinsCount + '</h5>';
+
         infoWindowContent += ' ';
         infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
         
