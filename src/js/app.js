@@ -97,6 +97,7 @@ var ViewModel = function() {
     });
 
     /****************** Trial code to add places dynamically ******************/
+   // TODO: !!! This depends on places being an observable !!!
    //
    // // Populate the dynamic model
    //  map.addListener('center_changed', function() {
