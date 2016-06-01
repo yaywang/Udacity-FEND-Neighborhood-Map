@@ -1,15 +1,13 @@
 // TODO: whether to define another observable or pollute the marker class, an object defined by another app?
-// TODO: link the places observable to actually the searched places
+// TODO: link the places observable to dynamically added locations.
 
-var Place = function(name, geocode, apiData) {
-    this.name = name;
-    this.geocode = geocodep;
-    this.apiData = apiData;
-};
+// var Place = function(name, geocode, apiData) {
+//     this.name = name;
+//     this.geocode = geocode;
+//     this.apiData = apiData;
+// }; 
 
-
-// Add apiData.fourSquareId to ensure perfect match from the fourSquareSearch results. It's optional.
-
+//apiData.fourSquareId ensures perfect match from the fourSquareSearch results. It's optional.
 var places = [{
     name: 'the Hive',
     geocode: {
@@ -206,7 +204,7 @@ var ViewModel = function() {
 
     // Make API calls and store the results as the marker's property
     function addAsyncData(marker) {
-        // Foursquare API call.
+        /****************** Foursquare API call. ******************/
         /* The response has some slight chance to contain unwanted locations
          * The success callback adds an extra filter to further lower the chance.
          */
@@ -221,11 +219,12 @@ var ViewModel = function() {
         // url += '&client_secret=' + clientSecret;
         // url += '&v=20151124';
 
-        // Now the intent is the by default, checkin
-        // TODO: suppose neither the fourSquareID and the geocode is the the model 
-        // TODO: this is tricky because you have to think how you are going to ensure 
-        // all the returned locations are what you really like
-        // and the returned categories could decide the icons
+        // Now the intent is the default option, checkin.
+        // TODO: suppose neither the fourSquareID nor the geocode is in the the model...
+        /* TODO: this is tricky because you have to think how you are going to ensure 
+         * all the returned locations are what you really like
+         * and the returned categories could decide the icons
+         */
         var searchUrl = 'https://api.foursquare.com/v2/venues/search?'; 
         searchUrl += 'll=' + map.getCenter().lat() + ',' + map.getCenter().lng();
         searchUrl += '&query=' + marker.title;
@@ -252,6 +251,7 @@ var ViewModel = function() {
     // The array of all markers
     var markers = [];
 
+    // Icons for different types of markers
     var icons = {
         workingPlace: {
             url: 'icons/building-24@2x.png'
