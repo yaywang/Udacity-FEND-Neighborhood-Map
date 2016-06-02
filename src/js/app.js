@@ -196,7 +196,8 @@ var ViewModel = function() {
         infoWindowContent += 'src="' + streetViewUrl;
         infoWindowContent += '" allowfullscreen></iframe>';
 
-        infoWindowContent += '</div>'
+        infoWindowContent += '</div>' 
+
 
         infoWindow.setContent(infoWindowContent);
         infoWindow.open(map, marker);
@@ -232,11 +233,24 @@ var ViewModel = function() {
         searchUrl += '&client_id=' + clientId;
         searchUrl += '&client_secret=' + clientSecret;
         searchUrl += '&v=20151124';
-  
+
+        /* If the Id is available, get the complete venue reponse
+         * SOME places have a complete data response now
+         * Anyways, there should be checks on if a specific data point, 
+         * like photos, is available before using
+         */
+        if (marker.apiData.fourSquareId) {
+            searchUrl = 'https://api.foursquare.com/v2/venues/';
+            searchUrl += marker.apiData.fourSquareId + '?';
+            searchUrl += '&client_id=' + clientId;
+            searchUrl += '&client_secret=' + clientSecret;
+            searchUrl += '&v=20151124';
+        }
+
         $.getJSON(searchUrl)
             .done(function(data) {
                 console.log(data);
-                marker.fourSquareData = data.response.venues[0];
+                marker.fourSquareData = data.response.venue[0];
                 for (var i = 0; i < data.response.venues; i++) {
                     if (data.response.venues[i]._id === marker.apiData.fourSquareId) {
                         marker.fourSquareData = data.response.venues[i];
