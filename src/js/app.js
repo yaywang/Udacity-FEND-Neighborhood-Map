@@ -196,6 +196,12 @@ var ViewModel = function() {
         infoWindowContent += 'src="' + streetViewUrl;
         infoWindowContent += '" allowfullscreen></iframe>';
 
+        // if the complete fourSquareData, with photos, is returned, display the best photo
+        if (marker.fourSquareData.bestPhoto) {
+            var photoUrl = marker.fourSquareData.bestPhoto.prefix + '300x300' + marker.fourSquareData.bestPhoto.suffix;
+            infoWindowContent += '<div class="venueImg"><img src=' + photoUrl + '>' + '</div>'
+        }
+
         infoWindowContent += '</div>' 
 
 
@@ -250,7 +256,7 @@ var ViewModel = function() {
         $.getJSON(searchUrl)
             .done(function(data) {
                 console.log(data);
-                marker.fourSquareData = data.response.venue[0];
+                marker.fourSquareData = data.response.venue[0] || data.response.venue;
                 for (var i = 0; i < data.response.venues; i++) {
                     if (data.response.venues[i]._id === marker.apiData.fourSquareId) {
                         marker.fourSquareData = data.response.venues[i];
