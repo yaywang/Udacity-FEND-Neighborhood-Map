@@ -107,12 +107,22 @@ li:first-child {
 }
 
 .infoWindowContent {
-    width: 400px;
-    height: 400px;
+    width: 150px;
+    height: 374px;
     overflow: scroll;
     opacity: 0.9;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, .8);
+    margin-left: 22px;
  }
+
+ a {
+    text-decoration: none;
+ }
+
+h5 {
+    margin-bottom: 3px;
+    margin-top: 5px;
+}
+
 
  .venueImg {
     width: 150px;
@@ -122,3 +132,4 @@ li:first-child {
  img {
     width: 100%;
  }
+
