@@ -170,8 +170,9 @@ var ViewModel = function() {
         }
 
         var infoWindowContent;
+        infoWindowContent = '<div class="infoWindowContent">';
+        
         if (marker.fourSquareData.url) { 
-            infoWindowContent = '<div class="infoWindowContent">';
             infoWindowContent += '<h3><a href="' + marker.fourSquareData.url +'">';
             infoWindowContent +=  marker.title + '</a></h3>';
         } else {
