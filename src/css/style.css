@@ -49,13 +49,11 @@ label:focus {
 
 
 /* hide inputs */
-
 .menu-checkbox {
     display: none;
 }
 
 /* fade in checked menu */
-
 .menu-checkbox:checked + .menu {
     transform: translate3d(0, 0, 0);
 }
@@ -112,24 +110,22 @@ li:first-child {
     overflow: scroll;
     opacity: 0.9;
     margin-left: 22px;
- }
+}
 
- a {
+a {
     text-decoration: none;
- }
+}
 
 h5 {
     margin-bottom: 3px;
     margin-top: 5px;
 }
 
-
- .venueImg {
+.venueImg {
     width: 150px;
     height: 150px;
- }
+}
 
- img {
+img {
     width: 100%;
- }
-
+}
