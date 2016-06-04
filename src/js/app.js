@@ -172,13 +172,15 @@ var ViewModel = function() {
         var infoWindowContent;
         infoWindowContent = '<div class="infoWindowContent">';
         
+        infoWindowContent += '<div class="infoWindowHeader">';
         if (marker.fourSquareData.url) { 
-            infoWindowContent += '<h3><a href="' + marker.fourSquareData.url +'">';
-            infoWindowContent +=  marker.title + '</a></h3>';
+            infoWindowContent += '<a href="' + marker.fourSquareData.url +'">';
+            infoWindowContent +=  marker.title + '</a>';
         } else {
-            infoWindowContent +=  '<h3>' + marker.title + '</h3>';
+            infoWindowContent +=  marker.title;
         }
-        
+        infoWindowContent += '</div>'
+
         // Popularity Indicator:
         var checkinsCount = marker.fourSquareData.stats.checkinsCount;
         infoWindowContent += '<h5>FourSquare Checkins: ' + checkinsCount + '</h5>';
