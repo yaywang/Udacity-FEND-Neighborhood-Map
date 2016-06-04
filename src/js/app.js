@@ -176,7 +176,7 @@ var ViewModel = function() {
             infoWindowContent += '<h3><a href="' + marker.fourSquareData.url +'">';
             infoWindowContent +=  marker.title + '</a></h3>';
         } else {
-            infoWindowContent =  '<h3>' + marker.title + '</h3>';
+            infoWindowContent +=  '<h3>' + marker.title + '</h3>';
         }
         
         // Popularity Indicator:
