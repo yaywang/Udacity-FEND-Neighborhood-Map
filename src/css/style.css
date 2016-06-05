@@ -130,3 +130,14 @@ h5 {
 img {
     width: 100%;
 }
+
+#sign-in-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 60px;
+    height: 60px;
+    z-index: 2;
+    opacity: 0.95;
+    background: #fff;
+}
