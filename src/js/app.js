@@ -77,7 +77,7 @@ var ViewModel = function() {
     var listCheckBoxes = $("input[name=menu]");
 
     /* Execute on each marker's click event, add in markers array
-     * and bind to click on list elements
+     * and bind to click event on list elements
      */
     self.setInfoWindow = function(marker) {
         for (var i = 0; i < markers().length; i++) {
@@ -124,13 +124,11 @@ var ViewModel = function() {
         streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
         streetViewUrl += '&location=' + marker.geocode.lat + ',' + marker.geocode.lng;
         streetViewUrl += '&fov=90&heading=235&pitch=10';
-        //console.log(marker);
-        //console.log(streetViewUrl);
         infoWindowContent += '<iframe width="150" height="150" frameborder="0" style="border:0"';
         infoWindowContent += 'src="' + streetViewUrl;
         infoWindowContent += '" allowfullscreen></iframe>';
 
-        // if the complete fourSquareData, with photos, is returned, display the best photo
+        // if the complete fourSquareData, the version with photos, is returned, display the best photo
         if (marker.fourSquareData.bestPhoto) {
             var photoUrl = marker.fourSquareData.bestPhoto.prefix + '300x300' + marker.fourSquareData.bestPhoto.suffix;
             infoWindowContent += '<div class="venueImg"><img src=' + photoUrl + '>' + '</div>'
@@ -175,10 +173,9 @@ var ViewModel = function() {
         searchUrl += '&client_secret=' + clientSecret;
         searchUrl += '&v=20151124';
 
-        /* If the Id is available, get the complete venue reponse
-         * SOME places have a complete data response now
-         * Anyways, there should be checks on if a specific data point, 
-         * like photos, is available before using
+        /* If the Id is available, get the complete venue reponse. In any event,
+         * there should be checks on if a specific data point, like photos, 
+         * is available before using
          */
         if (marker.apiData.fourSquareId) {
             searchUrl = 'https://api.foursquare.com/v2/venues/';
@@ -204,9 +201,10 @@ var ViewModel = function() {
     }
 
     // TODO: Merge markers with places. It's like keeping two copies of the model.
-    // The array of all markers, made computed obserbable to respond to changed in places observable array
+    /* The array of all markers, made computed observable to respond to
+     * changes in places observable array
+     */
     var markers = ko.computed(function() {
-
         // Icons for different types of markers
         var icons = {
             workingPlace: {
@@ -261,7 +259,7 @@ var ViewModel = function() {
                 };
             })(marker));
             
-            // End bouncing if you close the infoWindow before the default length of effect comes to an end
+            // End bouncing if you close the infoWindow before the default effect period comes to an end
             infoWindow.addListener('closeclick', (function(markerCopy) {
                 return function() {
                     markerCopy.setAnimation(null);
@@ -277,10 +275,11 @@ var ViewModel = function() {
         return markers;
     })
 
-    // Observables
-
+    // Search for currentMarkers, and set them visible in the meantime.
     self.searchInput = ko.observable('');
-    // Search for currentMarkers, also set them visible.
+    /* This is computed from the markers computed observable for convenience in 
+     * setting the markers visible or invisible.
+     */   
     self.currentMarkers = ko.computed(function() {
         // Close the infowindow as this obervable changes value
         infoWindow.close();
@@ -288,7 +287,7 @@ var ViewModel = function() {
         var searchInput = self.searchInput().toLowerCase();
         var currentMarkers = [];
         for (var i = 0; i < markers().length; i++) {
-            // Search in the test now
+            // Search algorithm
             if (markers()[i].title.toLowerCase().indexOf(searchInput) >= 0) {
                 currentMarkers.push(markers()[i]);
                 markers()[i].setVisible(true);
