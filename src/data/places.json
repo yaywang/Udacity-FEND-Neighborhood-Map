@@ -1,0 +1,79 @@
+[  
+   {  
+            "name":"the Hive",
+            "geocode":{  
+                  "lat":13.732065,
+                  "lng":100.57653               
+      },
+            "type":"workingPlace",
+            "apiData":{  
+                  "fourSquareId":"537c7102498e0dae7372c8dd"               
+      }         
+   },
+         {  
+            "name":"Seenspace 13",
+            "geocode":{  
+                  "lat":13.733611,
+                  "lng":100.58148               
+      },
+            "type":"bar",
+            "apiData":{  
+                  "fourSquareId":"4d849d2d5ad3a09392b6d2fd"               
+      }         
+   },
+         {  
+            "name":"Villa Market Sukhumvit 49",
+            "geocode":{  
+                  "lat":13.73261,
+                  "lng":100.57636               
+      },
+            "type":"grocery",
+            "apiData":{  
+                  "fourSquareId":"4c00b1dbdf6c0f4730d98b22"               
+      }         
+   },
+         {  
+            "name":"Villa Market J Avenue",
+            "geocode":{  
+                  "lat":13.734618,
+                  "lng":100.58201               
+      },
+            "type":"grocery",
+            "apiData":{  
+                  "fourSquareId":"4b8e745ff964a520792333e3"               
+      }         
+   },
+         {  
+            "name":"UFM Fuji Super Branch 4",
+            "geocode":{  
+                  "lat":13.731103,
+                  "lng":100.57593               
+      },
+            "type":"grocery",
+            "apiData":{  
+                  "fourSquareId":"4ceb4f19f8653704af28c2c4"               
+      }         
+   },
+         {  
+            "name":"Harvey",
+            "geocode":{  
+                  "lat":13.73213,
+                  "lng":100.579384               
+      },
+            "type":"restaurant",
+            "apiData":{  
+                  "fourSquareId":"4ba0d246f964a520f47f37e3"               
+      }         
+   },
+         {  
+            "name":"Bankara Ramen",
+            "geocode":{  
+                  "lat":13.73481,
+                  "lng":100.5722               
+      },
+            "type":"restaurant",
+            "apiData":{  
+                  "fourSquareId":"4b701198f964a520cb052de3"               
+      }         
+   }
+]
