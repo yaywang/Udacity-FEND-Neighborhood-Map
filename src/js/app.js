@@ -83,7 +83,21 @@ var ViewModel = function() {
         for (var i = 0; i < markers().length; i++) {
             markers()[i].setAnimation(null);
         }
+
+        // Set off marker bouncing.
         marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function() {
+            marker.setAnimation(null);
+        }, 1000);           
+        // End bouncing if you close the infoWindow before the default effect period comes to an end
+        // TODO: why you have to return a function within the function?
+        // TODO: why you cannot use this for the marker?
+        // TODO: read more about IFFE and scoping, and then think again.
+        infoWindow.addListener('closeclick', (function(markerCopy) {
+            return function() {
+                markerCopy.setAnimation(null);
+            }
+        })(marker));
 
         // Turn off the checkBox for controlling the list
         /* Once the window width is above 960 px, the list won't overlap with markers
@@ -239,32 +253,16 @@ var ViewModel = function() {
             });
 
             marker.geocode = places()[i].geocode;
-
             if (places()[i].apiData) {
                 marker.apiData = places()[i].apiData;
             }
 
-            marker.setMap(map);
+            marker.addListener('click', function(markerCopy) {
+                return function() {
+                    self.setInfoWindow(markerCopy)
+            }}(marker));
 
-            // TODO: why you have to return a function within the function?
-            // TODO: why you cannot use this for the marker?
-            // TODO: read more about IFFE and scoping, and then think again.
-            marker.addListener('click', (function(markerCopy) {
-                return function() {
-                    self.setInfoWindow(markerCopy);
-                    // End bouncing after a default length of effect
-                    setTimeout(function() {
-                        markerCopy.setAnimation(null);
-                    }, 5000)
-                };
-            })(marker));
-            
-            // End bouncing if you close the infoWindow before the default effect period comes to an end
-            infoWindow.addListener('closeclick', (function(markerCopy) {
-                return function() {
-                    markerCopy.setAnimation(null);
-                }
-            })(marker));
+            marker.setMap(map);
 
             (function(marker) {
                 addAsyncData(marker);
