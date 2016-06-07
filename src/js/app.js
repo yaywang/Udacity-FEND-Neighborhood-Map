@@ -1,87 +1,18 @@
 // TODO: whether to define another observable or pollute the marker class, an object defined by another app?
 // TODO: link the places observable to dynamically added locations.
-
-// var Place = function(name, geocode, apiData) {
-//     this.name = name;
-//     this.geocode = geocode;
-//     this.apiData = apiData;
-// }; 
-
-//apiData.fourSquareId ensures perfect match from the fourSquareSearch results. It's optional.
-var places = [{
-    name: 'the Hive',
-    geocode: {
-        lat: 13.732065,
-        lng: 100.576528
-    },
-    type: 'workingPlace',
-    apiData: {
-        fourSquareId: '537c7102498e0dae7372c8dd'
-    }
-}, {
-    name: 'Seenspace 13',
-    geocode: {
-        lat: 13.733611,
-        lng: 100.581482
-    },
-    type: 'bar',
-    apiData: {
-        fourSquareId: '4d849d2d5ad3a09392b6d2fd'
-    }
-}, {
-    name: 'Villa Market Sukhumvit 49',
-    geocode: {
-        lat: 13.732610,
-        lng: 100.576364
-    },
-    type: 'grocery',
-    apiData: {
-        fourSquareId: '4c00b1dbdf6c0f4730d98b22'
-    }
-}, {
-    name: 'Villa Market J Avenue',
-    geocode: {
-        lat: 13.734618,
-        lng: 100.582011
-    },
-    type: 'grocery',
-    apiData: {
-        fourSquareId: '4b8e745ff964a520792333e3'
-    }
-}, {
-    name: 'UFM Fuji Super Branch 4',
-    geocode: {
-        lat: 13.731103,
-        lng: 100.575931
-    },
-    type: 'grocery',
-    apiData: {
-        fourSquareId: '4ceb4f19f8653704af28c2c4'
-    }
-}, {
-    name: 'Harvey',
-    geocode: {
-        lat: 13.732130,
-        lng: 100.579386
-    },
-    type: 'restaurant',
-    apiData: {
-        fourSquareId: '4ba0d246f964a520f47f37e3'
-    }
-}, {
-    name: 'Bankara Ramen',
-    geocode: {
-        lat: 13.734810,
-        lng: 100.572196
-    },
-    type: 'restaurant',
-    apiData: {
-        fourSquareId: '4b701198f964a520cb052de3'
-    }
-}];
+// TODO: when you click on a place, the upper-right menu tab becomes transparent.
+// TODO: minimize the title on Google StreetView images.
 
 var ViewModel = function() {
     var self = this;
+
+    // Retrieve places from Firebase database
+    var places = ko.observableArray([]);
+    var placesRef = firebase.database().ref('places/'); 
+    placesRef.on('value', function(snapshot) {
+        places(snapshot.val());
+    });
+    // TODO: add personsalized place data
 
     // Instantiate Google Maps objects
     var map = new google.maps.Map(document.getElementById('map'), {
@@ -149,8 +80,8 @@ var ViewModel = function() {
      * and bind to click on list elements
      */
     self.setInfoWindow = function(marker) {
-        for (var i = 0; i < markers.length; i++) {
-            markers[i].setAnimation(null);
+        for (var i = 0; i < markers().length; i++) {
+            markers()[i].setAnimation(null);
         }
         marker.setAnimation(google.maps.Animation.BOUNCE);
 
@@ -212,6 +143,7 @@ var ViewModel = function() {
         infoWindow.open(map, marker);
     };
 
+    // TODO: send this to webworker, or somewhere in the backend.
     // Make API calls and store the results as the marker's property
     function addAsyncData(marker) {
         /****************** Foursquare API call. ******************/
@@ -271,75 +203,79 @@ var ViewModel = function() {
             });
     }
 
-    // The array of all markers
-    var markers = [];
+    // TODO: Merge markers with places. It's like keeping two copies of the model.
+    // The array of all markers, made computed obserbable to respond to changed in places observable array
+    var markers = ko.computed(function() {
 
-    // Icons for different types of markers
-    var icons = {
-        workingPlace: {
-            url: 'icons/building-24@2x.png'
-        },
-        bar: {
-            url: 'icons/bar-24@2x.png'
-        },
-        restaurant: {
-            url: 'icons/restaurant-24@2x.png'
-        },
-        grocery: {
-            url: 'icons/grocery-24@2x.png'
-            //origin: new google.maps.Point(0, 0),
-        }
-    };
-
-    // Ensure all the icons have the right sizes
-    var processedIcons = {};
-    for (var type in icons) {
-        if (!icons.hasOwnProperty(type)) continue;
-
-        processedIcons[type] = new google.maps.MarkerImage(icons[type].url, null, null, null, new google.maps.Size(36, 36));
-    }
-
-    for (var i = 0; i < places.length; i++) {
-        var marker = new google.maps.Marker({
-            position: places[i].geocode,
-            title: places[i].name,
-            icon: processedIcons[places[i].type]
-        });
-
-        marker.geocode = places[i].geocode;
-
-        if (places[i].apiData) {
-            marker.apiData = places[i].apiData;
-        }
-
-        marker.setMap(map);
-
-        // TODO: why you have to return a function within the function?
-        // TODO: why you cannot use this for the marker?
-        // TODO: read more about IFFE and scoping, and then think again.
-        marker.addListener('click', (function(markerCopy) {
-            return function() {
-                self.setInfoWindow(markerCopy);
-                // End bouncing after a default length of effect
-                setTimeout(function() {
-                    markerCopy.setAnimation(null);
-                }, 5000)
-            };
-        })(marker));
-        
-        // End bouncing if you close the infoWindow before the default length of effect comes to an end
-        infoWindow.addListener('closeclick', (function(markerCopy) {
-            return function() {
-                markerCopy.setAnimation(null);
+        // Icons for different types of markers
+        var icons = {
+            workingPlace: {
+                url: 'icons/building-24@2x.png'
+            },
+            bar: {
+                url: 'icons/bar-24@2x.png'
+            },
+            restaurant: {
+                url: 'icons/restaurant-24@2x.png'
+            },
+            grocery: {
+                url: 'icons/grocery-24@2x.png'
+                //origin: new google.maps.Point(0, 0),
             }
-        })(marker));
+        };
 
-        (function(marker) {
-            addAsyncData(marker);
-        })(marker);
+        // Ensure all the icons have the right sizes
+        var processedIcons = {};
+        for (var type in icons) {
+            if (!icons.hasOwnProperty(type)) continue;
 
-        markers.push(marker);
-    }
+            processedIcons[type] = new google.maps.MarkerImage(icons[type].url, null, null, null, new google.maps.Size(36, 36));
+        }
+
+        var markers = [];
+        for (var i = 0; i < places().length; i++) {
+            var marker = new google.maps.Marker({
+                position: places()[i].geocode,
+                title: places()[i].name,
+                icon: processedIcons[places()[i].type]
+            });
+
+            marker.geocode = places()[i].geocode;
+
+            if (places()[i].apiData) {
+                marker.apiData = places()[i].apiData;
+            }
+
+            marker.setMap(map);
+
+            // TODO: why you have to return a function within the function?
+            // TODO: why you cannot use this for the marker?
+            // TODO: read more about IFFE and scoping, and then think again.
+            marker.addListener('click', (function(markerCopy) {
+                return function() {
+                    self.setInfoWindow(markerCopy);
+                    // End bouncing after a default length of effect
+                    setTimeout(function() {
+                        markerCopy.setAnimation(null);
+                    }, 5000)
+                };
+            })(marker));
+            
+            // End bouncing if you close the infoWindow before the default length of effect comes to an end
+            infoWindow.addListener('closeclick', (function(markerCopy) {
+                return function() {
+                    markerCopy.setAnimation(null);
+                }
+            })(marker));
+
+            (function(marker) {
+                addAsyncData(marker);
+            })(marker);
+
+            markers.push(marker);
+        }
+        return markers;
+    })
 
     // Observables
 
@@ -351,13 +287,13 @@ var ViewModel = function() {
 
         var searchInput = self.searchInput().toLowerCase();
         var currentMarkers = [];
-        for (var i = 0; i < markers.length; i++) {
+        for (var i = 0; i < markers().length; i++) {
             // Search in the test now
-            if (markers[i].title.toLowerCase().indexOf(searchInput) >= 0) {
-                currentMarkers.push(markers[i]);
-                markers[i].setVisible(true);
+            if (markers()[i].title.toLowerCase().indexOf(searchInput) >= 0) {
+                currentMarkers.push(markers()[i]);
+                markers()[i].setVisible(true);
             } else {
-                markers[i].setVisible(false);
+                markers()[i].setVisible(false);
             }
         }
         return currentMarkers;
