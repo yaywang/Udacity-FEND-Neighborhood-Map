@@ -2,6 +2,8 @@
 // TODO: link the places observable to dynamically added locations.
 // TODO: when you click on a place, the upper-right menu tab becomes transparent.
 // TODO: minimize the title on Google StreetView images.
+// TODO: prevent Google Maps from displaying clickable markers on its own. 
+// TODO: add scale to the map
 
 var ViewModel = function() {
     var self = this;
@@ -36,84 +38,92 @@ var ViewModel = function() {
      * and bind to click event on list elements
      */
     self.setInfoWindow = function(marker) {
-        for (var i = 0; i < markers().length; i++) {
-            markers()[i].setAnimation(null);
-        }
-
-        // Set off marker bouncing.
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-        setTimeout(function() {
-            marker.setAnimation(null);
-        }, 1000);           
-        // End bouncing if you close the infoWindow before the default effect period comes to an end
-        // TODO: why you have to return a function within the function?
-        // TODO: why you cannot use this for the marker?
-        // TODO: read more about IFFE and scoping, and then think again.
-        infoWindow.addListener('closeclick', (function(markerCopy) {
-            return function() {
-                markerCopy.setAnimation(null);
+        function buildInfoWindow(marker) { 
+            
+            for (var i = 0; i < markers().length; i++) {
+                markers()[i].setAnimation(null);
             }
-        })(marker));
 
-        // Turn off the checkBox for controlling the list
-        /* Once the window width is above 960 px, the list won't overlap with markers
-         * Note that this number depends on the zoom level. If it's large
-         * then some markers will be too near to the left edge
-         */
+            // Set off marker bouncing.
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(function() {
+                marker.setAnimation(null);
+            }, 1000);
 
-        /* TODO: if you load in portrait and then flip the ipad to landscape, then
-         * the leftmost marker will still be behind the list
-         * in iPhone 5, the label would cover an infowindow on the upperleft corner
-         */
 
-        if (window.innerWidth < 960) {
-            listCheckBoxes.prop('checked', false);
+            // End bouncing if you close the infoWindow before the default effect period comes to an end
+            // TODO: why you have to return a function within the function?
+            // TODO: why you cannot use this for the marker?
+            // TODO: read more about IFFE and scoping, and then think again.
+            infoWindow.addListener('closeclick', (function(markerCopy) {
+                return function() {
+                    markerCopy.setAnimation(null);
+                }
+            })(marker));
+
+            // Turn off the checkBox for controlling the list
+            /* Once the window width is above 960 px, the list won't overlap with markers
+             * Note that this number depends on the zoom level. If it's large
+             * then some markers will be too near to the left edge
+             */
+            /* TODO: if you load in portrait and then flip the ipad to landscape, then
+             * the leftmost marker will still be behind the list
+             * in iPhone 5, the label would cover an infowindow on the upperleft corner
+             */
+            if (window.innerWidth < 960) {
+                listCheckBoxes.prop('checked', false);
+            }
+
+            var infoWindowContent;
+            infoWindowContent = '<div class="infoWindowContent">';
+            
+            infoWindowContent += '<div class="infoWindowHeader">';
+            if (marker.fourSquareData.url) { 
+                infoWindowContent += '<a href="' + marker.fourSquareData.url +'">';
+                infoWindowContent +=  marker.title + '</a>';
+            } else {
+                infoWindowContent +=  marker.title;
+            }
+            infoWindowContent += '</div>'
+
+            // Popularity Indicator:
+            var checkinsCount = marker.fourSquareData.stats.checkinsCount;
+            infoWindowContent += '<h5>FourSquare Checkins: ' + checkinsCount + '</h5>';
+
+            infoWindowContent += ' ';
+            infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
+            
+            /*************  Google StreetView   **************/
+            var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
+            streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
+            streetViewUrl += '&location=' + marker.geocode.lat + ',' + marker.geocode.lng;
+            streetViewUrl += '&fov=90&heading=235&pitch=10';
+            infoWindowContent += '<iframe width="150" height="150" frameborder="0" style="border:0"';
+            infoWindowContent += 'src="' + streetViewUrl;
+            infoWindowContent += '" allowfullscreen></iframe>';
+
+            // if the complete fourSquareData, the version with photos, is returned, display the best photo
+            if (marker.fourSquareData.bestPhoto) {
+                var photoUrl = marker.fourSquareData.bestPhoto.prefix + '300x300' + marker.fourSquareData.bestPhoto.suffix;
+                infoWindowContent += '<div class="venueImg"><img src=' + photoUrl + '>' + '</div>'
+            }
+
+            infoWindowContent += '</div>' 
+
+            infoWindow.setContent(infoWindowContent);
+            infoWindow.open(map, marker);
         }
 
-        var infoWindowContent;
-        infoWindowContent = '<div class="infoWindowContent">';
-        
-        infoWindowContent += '<div class="infoWindowHeader">';
-        if (marker.fourSquareData.url) { 
-            infoWindowContent += '<a href="' + marker.fourSquareData.url +'">';
-            infoWindowContent +=  marker.title + '</a>';
-        } else {
-            infoWindowContent +=  marker.title;
-        }
-        infoWindowContent += '</div>'
-
-        // Popularity Indicator:
-        var checkinsCount = marker.fourSquareData.stats.checkinsCount;
-        infoWindowContent += '<h5>FourSquare Checkins: ' + checkinsCount + '</h5>';
-
-        infoWindowContent += ' ';
-        infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
-        
-        /*************  Google StreetView   **************/
-        var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
-        streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
-        streetViewUrl += '&location=' + marker.geocode.lat + ',' + marker.geocode.lng;
-        streetViewUrl += '&fov=90&heading=235&pitch=10';
-        infoWindowContent += '<iframe width="150" height="150" frameborder="0" style="border:0"';
-        infoWindowContent += 'src="' + streetViewUrl;
-        infoWindowContent += '" allowfullscreen></iframe>';
-
-        // if the complete fourSquareData, the version with photos, is returned, display the best photo
-        if (marker.fourSquareData.bestPhoto) {
-            var photoUrl = marker.fourSquareData.bestPhoto.prefix + '300x300' + marker.fourSquareData.bestPhoto.suffix;
-            infoWindowContent += '<div class="venueImg"><img src=' + photoUrl + '>' + '</div>'
-        }
-
-        infoWindowContent += '</div>' 
-
-
-        infoWindow.setContent(infoWindowContent);
-        infoWindow.open(map, marker);
+        // Do all the API calls and add the returned data to the marker object itself.
+        (function(marker) {
+            addAsyncData(marker, buildInfoWindow);
+        })(marker);
     };
 
     // TODO: send this to webworker, or somewhere in the backend.
     // Make API calls and store the results as the marker's property
-    function addAsyncData(marker) {
+    // The callbackl has to take a marker as an argument
+    function addAsyncData(marker, callback) {
         /****************** Foursquare API call. ******************/
         /* The response has some slight chance to contain unwanted locations
          * The success callback adds an extra filter to further lower the chance.
@@ -163,14 +173,18 @@ var ViewModel = function() {
                     if (data.response.venues[i]._id === marker.apiData.fourSquareId) {
                         marker.fourSquareData = data.response.venues[i];
                     }
-                }
+                };
+                callback(marker);
             })
             .fail(function(error) {
                 marker.fourSquareData = false;
             });
     }
 
-    // TODO: Merge markers with places. It's like keeping two copies of the model.
+    /* TODO: Merge markers with places. It's like keeping two copies of 
+     * the model. Or, this computed observable could contain all the info
+     * that's dynamically included in the map. 
+     */
     /* The array of all markers, made computed observable to respond to
      * changes in places observable array
      */
@@ -219,10 +233,6 @@ var ViewModel = function() {
             }}(marker));
 
             marker.setMap(map);
-
-            (function(marker) {
-                addAsyncData(marker);
-            })(marker);
 
             markers.push(marker);
         }
