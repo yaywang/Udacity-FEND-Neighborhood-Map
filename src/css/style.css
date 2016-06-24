@@ -104,13 +104,24 @@ li:first-child {
     height: 100%;
 }
 
+#recenterMap {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #f44336;
+    position: absolute;
+    right: 14.5px;
+    bottom: 125px;
+}
+}
+
 .infoWindowContent {
     width: 150px;
     height: 374px;
     overflow: scroll;
     opacity: 0.9;
     margin-left: 22px;
-    font-family: "San Francisco", sans-serif;
+    font-family: Helvetica, sans-serif;
 }
 
 a {
@@ -128,7 +139,11 @@ h5 {
 }
 
 img {
-    width: 100%;
+    width: 49%;
+}
+
+img:nth-child(odd) {
+    margin-right: 2%;
 }
 
 #sign-in-button {

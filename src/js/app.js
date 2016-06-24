@@ -4,6 +4,7 @@
 // TODO: prevent Google Maps from displaying clickable markers on its own. 
 // TODO: add scale to the map
 // TODO: after clicking on a list item, the list should close
+// TODO: there must be some markers even before sign-in.
 
 var ViewModel = function() {
     var self = this;
@@ -17,14 +18,23 @@ var ViewModel = function() {
     // TODO: add personsalized place data
 
     // Instantiate Google Maps objects
+    var mapCenter = {
+            lat: 13.7323776648197, 
+            lng: 100.57712881481939
+    };
     var map = new google.maps.Map(document.getElementById('map'), {
-        center: {
-            lat: 13.732065,
-            lng: 100.576528
-        },
-        zoom: 16,
+        center: mapCenter,
+        zoom: 17,
         mapTypeControl: false,
         styles: paleDownMapTypeArray
+    });
+
+    // map.addListener('center_changed', function() {
+    //     console.log(map.getCenter().lat(), map.getCenter().lng());
+    // })
+
+    $('#recenterMap').click(function() {
+        map.setCenter(new google.maps.LatLng(mapCenter.lat, mapCenter.lng));
     });
 
     var infoWindow = new google.maps.InfoWindow({
