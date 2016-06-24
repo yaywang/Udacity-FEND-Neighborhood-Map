@@ -1,9 +1,9 @@
-// TODO: whether to define another observable or pollute the marker class, an object defined by another app?
 // TODO: link the places observable to dynamically added locations.
 // TODO: when you click on a place, the upper-right menu tab becomes transparent.
 // TODO: minimize the title on Google StreetView images.
 // TODO: prevent Google Maps from displaying clickable markers on its own. 
 // TODO: add scale to the map
+// TODO: after clicking on a list item, the list should close
 
 var ViewModel = function() {
     var self = this;
@@ -84,6 +84,7 @@ var ViewModel = function() {
             } else {
                 infoWindowContent +=  marker.title;
             }
+            //infoWindow += '<span class="likeIcon"><img src=' + '"icons/heart-15.svg"' + '></span>' 
             infoWindowContent += '</div>'
 
             // Popularity Indicator:
@@ -103,10 +104,20 @@ var ViewModel = function() {
             infoWindowContent += '" allowfullscreen></iframe>';
 
             // if the complete fourSquareData, the version with photos, is returned, display the best photo
-            if (marker.fourSquareData.bestPhoto) {
-                var photoUrl = marker.fourSquareData.bestPhoto.prefix + '300x300' + marker.fourSquareData.bestPhoto.suffix;
-                infoWindowContent += '<div class="venueImg"><img src=' + photoUrl + '>' + '</div>'
+            infoWindowContent += '<div class="venueImg">'
+            for (var i = 0; i < 6; i+=2) {
+                var photoEntry1 = marker.fourSquareData.photos.groups[0].items[i];
+                var photoEntry2 = marker.fourSquareData.photos.groups[0].items[i + 1];
+                if (photoEntry1 && photoEntry2) {
+                    // make sure there're always two pictures on a single row.
+                    [photoEntry1, photoEntry2].forEach(function(photoEntry) {
+                        var photoUrl = photoEntry.prefix + '100x100' + photoEntry.suffix;
+                        infoWindowContent += '<img src=' + photoUrl + '>';
+                    })
+                }
             }
+            infoWindowContent += '</div>';
+
 
             infoWindowContent += '</div>' 
 
