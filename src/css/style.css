@@ -113,7 +113,6 @@ li:first-child {
     right: 14.5px;
     bottom: 125px;
 }
-}
 
 .infoWindowContent {
     width: 150px;
@@ -121,7 +120,7 @@ li:first-child {
     overflow: scroll;
     opacity: 0.9;
     margin-left: 22px;
-    font-family: Helvetica, sans-serif;
+    font-family: helvetica, sans-serif;
 }
 
 a {
