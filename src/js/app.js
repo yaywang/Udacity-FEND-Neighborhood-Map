@@ -94,8 +94,8 @@ var ViewModel = function() {
             } else {
                 infoWindowContent +=  marker.title;
             }
-            //infoWindow += '<span class="likeIcon"><img src=' + '"icons/heart-15.svg"' + '></span>' 
-            infoWindowContent += '</div>'
+            infoWindowContent += '<span class="icon-heart"></span>' ;
+            infoWindowContent += '</div>';
 
             // Popularity Indicator:
             var checkinsCount = marker.fourSquareData.stats.checkinsCount;
