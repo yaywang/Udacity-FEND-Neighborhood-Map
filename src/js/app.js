@@ -82,20 +82,18 @@ function buildInfoWindow(marker) {
     infoWindow.setContent(infoWindowContent);
     infoWindow.open(map, marker);
 
-    // heart icon click event
     $('.icon-heart').click(function(marker) {
         console.log('User clicks the like button');
         likeALocation(marker)
     }(marker));
 }
-
 /* TODO: move currentLoc or the currentMarker to global namespace, and write onlick event into
  * the html, or this does not work.
  */
 function likeALocation(marker) {
     var heartIcon = $('.icon-heart');
     if (heartIcon.css('color') == '606060') {
-        // Cancel like status
+        // TODO: Cancel like status
     } else {
         console.log('Icon-heart color: ' + heartIcon.css('color'));
         console.log('liked');
@@ -106,24 +104,12 @@ function likeALocation(marker) {
 }
 
 // Make API calls and store the results as the marker's property
-// The callbackl has to take a marker as an argument
+// The callbackl takes a marker as an argument
 function addAsyncData(marker, callback) {
     /****************** Foursquare API call. ******************/
-    /* The response has some slight chance to contain unwanted locations
-     * The success callback adds an extra filter to further lower the chance.
-     */
     var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ';
     var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
 
-    // var url = 'https://api.foursquare.com/v2/venues/search?';
-    // url += 'll=' + marker.geocode.lat + ',' + marker.geocode.lng;
-    // url += '&query=' + marker.title;
-    // url += '&intent=match';
-    // url += '&client_id=' + clientId;
-    // url += '&client_secret=' + clientSecret;
-    // url += '&v=20151124';
-
-    // Now the intent is the default option, checkin.
     // TODO: suppose neither the fourSquareID nor the geocode is in the the model...
     /* TODO: this is tricky because you have to think how you are going to ensure 
      * all the returned locations are what you really like
@@ -137,9 +123,8 @@ function addAsyncData(marker, callback) {
     searchUrl += '&client_secret=' + clientSecret;
     searchUrl += '&v=20151124';
 
-    /* If the Id is available, get the complete venue reponse. In any event,
-     * there should be checks on if a specific data point, like photos, 
-     * is available before using
+    /* If the Id is available, get the complete venue reponse. Check if a specific 
+     * data point, like photos, is available before using 
      */
     if (marker.apiData.fourSquareId) {
         searchUrl = 'https://api.foursquare.com/v2/venues/';
@@ -249,8 +234,8 @@ var ViewModel = function() {
         // Ensure all the icons have the right sizes
         var processedIcons = {};
         for (var type in icons) {
+            // TODO: see how to use continue
             if (!icons.hasOwnProperty(type)) continue;
-
             processedIcons[type] = new google.maps.MarkerImage(icons[type].url, null, null, null, new google.maps.Size(36, 36));
         }
 
@@ -281,8 +266,8 @@ var ViewModel = function() {
 
     // Search for currentMarkers, and set them visible in the meantime.
     self.searchInput = ko.observable('');
-    /* This is computed from the markers computed observable for convenience in 
-     * setting the markers visible or invisible.
+    /* This is computed from the markers computed observable, instead of places
+     * for convenience in setting the markers visible or invisible.
      */   
     self.currentMarkers = ko.computed(function() {
         // Close the infowindow as this obervable changes value
