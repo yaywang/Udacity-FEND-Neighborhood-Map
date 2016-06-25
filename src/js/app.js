@@ -10,29 +10,7 @@
 // TODO: the ViewModel should actually take in places as an argument.
 // TODO: rename icon-heart to like-icon.
 
-function initMap() {
-    // Instantiate Google Maps objects
-    var mapCenter = {
-            lat: 13.7323776648197, 
-            lng: 100.57712881481939
-    };
-    var map = new google.maps.Map(document.getElementById('map'), {
-        center: mapCenter,
-        zoom: 17,
-        mapTypeControl: false,
-        styles: paleDownMapTypeArray
-    });
-
-    // map.addListener('center_changed', function() {
-    //     console.log(map.getCenter().lat(), map.getCenter().lng());
-    // })
-
-    $('#recenterMap').click(function() {
-        map.setCenter(new google.maps.LatLng(mapCenter.lat, mapCenter.lng));
-    });
-}
-
-function buildInfoWindow(marker) { 
+function composeInfoWindowContent(marker) { 
     var infoWindowContent;
     infoWindowContent = '<div class="infoWindowContent">';
     
@@ -78,29 +56,7 @@ function buildInfoWindow(marker) {
     infoWindowContent += '</div>';
 
     infoWindowContent += '</div>' 
-
-    infoWindow.setContent(infoWindowContent);
-    infoWindow.open(map, marker);
-
-    $('.icon-heart').click(function(marker) {
-        console.log('User clicks the like button');
-        likeALocation(marker)
-    }(marker));
-}
-/* TODO: move currentLoc or the currentMarker to global namespace, and write onlick event into
- * the html, or this does not work.
- */
-function likeALocation(marker) {
-    var heartIcon = $('.icon-heart');
-    if (heartIcon.css('color') == '606060') {
-        // TODO: Cancel like status
-    } else {
-        console.log('Icon-heart color: ' + heartIcon.css('color'));
-        console.log('liked');
-        heartIcon.css('color', '606060');                
-        // TODO: restructure markers/places computed arrays, so the places could be easily matched
-        likedPlacesRef().push(marker.getTitle());
-    }
+    return infoWindowContent
 }
 
 // Make API calls and store the results as the marker's property
@@ -116,7 +72,7 @@ function addAsyncData(marker, callback) {
      * and the returned categories could decide the icons
      */
     var searchUrl = 'https://api.foursquare.com/v2/venues/search?'; 
-    searchUrl += 'll=' + map.getCenter().lat() + ',' + map.getCenter().lng();
+    searchUrl += 'll=' + marker.geocode.lat + ',' + marker.geocode.lng;
     searchUrl += '&query=' + marker.title;
     searchUrl += '&limit=2';
     searchUrl += '&client_id=' + clientId;
@@ -151,8 +107,28 @@ function addAsyncData(marker, callback) {
 }
 
 var ViewModel = function() {
-    initMap();
     var self = this;
+
+    // Instantiate Google Maps objects
+    var mapCenter = {
+            lat: 13.7323776648197, 
+            lng: 100.57712881481939
+    };
+
+    var map = new google.maps.Map(document.getElementById('map'), {
+        center: mapCenter,
+        zoom: 17,
+        mapTypeControl: false,
+        styles: paleDownMapTypeArray
+    });
+
+    // map.addListener('center_changed', function() {
+    //     console.log(map.getCenter().lat(), map.getCenter().lng());
+    // })
+
+    $('#recenterMap').click(function() {
+        map.setCenter(new google.maps.LatLng(mapCenter.lat, mapCenter.lng));
+    });
 
     // Firebase references for the entire Knockout app
     var placesRef = firebase.database().ref('places/'); 
@@ -190,6 +166,28 @@ var ViewModel = function() {
             marker.setAnimation(null);
         }, 1000);
 
+        function buildInfoWindow(marker) {
+            var infoWindowContent = composeInfoWindowContent(marker);   
+            infoWindow.setContent(infoWindowContent);
+            infoWindow.open(map, marker);
+        }
+
+        /* TODO: move currentLoc or the currentMarker to global namespace, and write onlick event into
+         * the html, or this will not work.
+         */
+        function likeALocation(marker) {
+            var heartIcon = $('.icon-heart');
+            if (heartIcon.css('color') == '606060') {
+                // TODO: Cancel like status
+            } else {
+                console.log('Icon-heart color: ' + heartIcon.css('color'));
+                console.log('liked');
+                heartIcon.css('color', '606060');                
+                // TODO: restructure markers/places computed arrays, so the places could be easily matched
+                likedPlacesRef().push(marker.getTitle());
+            }
+        }
+
         // End bouncing if you close the infoWindow before the default effect period comes to an end
         // TODO: why you have to return a function within the function?
         // TODO: why you cannot use this for the marker?
@@ -201,8 +199,8 @@ var ViewModel = function() {
         })(marker));
 
         // Do all the API calls and add the returned data to the marker object itself.
-        (function(marker) {
-            addAsyncData(marker, buildInfoWindow);
+        (function(markerCopy) {
+            addAsyncData(markerCopy, buildInfoWindow);
         })(marker);
     };
 
