@@ -162,7 +162,7 @@ h5 {
 .icon-heart:before {
     content: "\e9da";
     margin-left: 10px;
-    color: crimson;
+    color: #eee;
 }
 
 .venueImg {
