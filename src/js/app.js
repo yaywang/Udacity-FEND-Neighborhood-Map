@@ -1,3 +1,5 @@
+// TODO: currentLoc variable for the one opened on info window.
+// TODO: checking if a user likes a location on info window opening.
 // TODO: link the places observable to dynamically added locations.
 // TODO: when you click on a place, the upper-right menu tab becomes transparent.
 // TODO: minimize the title on Google StreetView images.
@@ -5,17 +7,29 @@
 // TODO: add scale to the map
 // TODO: after clicking on a list item, the list should close
 // TODO: there must be some markers even before sign-in.
+// TODO: the ViewModel should actually take in places as an argument.
+// TODO: rename icon-heart to like-icon.
 
 var ViewModel = function() {
     var self = this;
 
+    // Firebase references for the entire Knockout app
+    var placesRef = firebase.database().ref('places/'); 
+    var likedPlacesRef = ko.computed(function() {
+        var uid = currentUserId();
+        return firebase.database().ref('users/' + uid + '/likedPlaces')
+    });
+
     // Retrieve places from Firebase database
     var places = ko.observableArray([]);
-    var placesRef = firebase.database().ref('places/'); 
     placesRef.on('value', function(snapshot) {
         places(snapshot.val());
     });
-    // TODO: add personsalized place data
+
+    var likedPlaces = ko.observableArray([]);
+    likedPlacesRef().once('value', function(snapshot) {
+        likedPlaces(snapshot.val());
+    });
 
     // Instantiate Google Maps objects
     var mapCenter = {
@@ -59,7 +73,6 @@ var ViewModel = function() {
             setTimeout(function() {
                 marker.setAnimation(null);
             }, 1000);
-
 
             // End bouncing if you close the infoWindow before the default effect period comes to an end
             // TODO: why you have to return a function within the function?
@@ -128,11 +141,32 @@ var ViewModel = function() {
             }
             infoWindowContent += '</div>';
 
-
             infoWindowContent += '</div>' 
 
             infoWindow.setContent(infoWindowContent);
             infoWindow.open(map, marker);
+
+            // heart icon click event
+            $('.icon-heart').click(function(marker) {
+                console.log('User clicks the like button');
+                likeALocation(marker)
+            }(marker));
+        }
+
+        /* TODO: move currentLoc or the currentMarker to global namespace, and write onlick event into
+         * the html, or this does not work.
+         */
+        function likeALocation(marker) {
+            var heartIcon = $('.icon-heart');
+            if (heartIcon.css('color') == '606060') {
+                // Cancel like status
+            } else {
+                console.log('Icon-heart color: ' + heartIcon.css('color'));
+                console.log('liked');
+                heartIcon.css('color', '606060');                
+                // TODO: restructure markers/places computed arrays, so the places could be easily matched
+                likedPlacesRef().push(marker.getTitle());
+            }
         }
 
         // Do all the API calls and add the returned data to the marker object itself.
@@ -141,7 +175,6 @@ var ViewModel = function() {
         })(marker);
     };
 
-    // TODO: send this to webworker, or somewhere in the backend.
     // Make API calls and store the results as the marker's property
     // The callbackl has to take a marker as an argument
     function addAsyncData(marker, callback) {
