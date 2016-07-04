@@ -1,4 +1,6 @@
 // TODO: understanding the synchronousy issues for gulp tasks
+// TODO: see if it's really possible to watch
+
 
 var gulp = require('gulp'),
     del = require('del'),
@@ -14,6 +16,24 @@ var gulp = require('gulp'),
 
 var site = '',
     portVal = 8000;
+
+// Watch, as much as living editting as possible
+// Browser-sync configs
+gulp.task('serveSrc', function(cb) {
+    browserSync.init({
+        port: portVal,
+        open: 'local',
+        browser: 'Google Chrome Canary',
+        server: {
+            baseDir: 'src/',
+        }
+    });
+});
+
+// Watch all files
+gulp.task('watch', ['serveSrc'], function() {
+    gulp.watch(['src/**/*.html', 'src/**/*.js', 'src/**/*.css']).on('change', browserSync.reload);
+})
 
 // Browser-sync configs
 
