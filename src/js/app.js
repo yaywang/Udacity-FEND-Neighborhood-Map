@@ -8,7 +8,7 @@ var ViewModel = function() {
 
     // Retrieve places from Firebase database
     var places = ko.observableArray([]);
-    var placesRef = firebase.database().ref('places/'); 
+    var placesRef = firebase.database().ref('places/');
     placesRef.on('value', function(snapshot) {
         places(snapshot.val());
     });
@@ -39,7 +39,7 @@ var ViewModel = function() {
    //      var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ';
    //      var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
 
-   //      var searchUrl = 'https://api.foursquare.com/v2/venues/explore?'; 
+   //      var searchUrl = 'https://api.foursquare.com/v2/venues/explore?';
    //      searchUrl += 'll=' + newCenter.lat + ',' + newCenter.lng;
    //      searchUrl += '&query=coffee';
    //      // Here only the last query item is remembered
@@ -48,7 +48,7 @@ var ViewModel = function() {
    //      searchUrl += '&client_id=' + clientId;
    //      searchUrl += '&client_secret=' + clientSecret;
    //      searchUrl += '&v=20151124';
-  
+
    //      // Response data structure:
    //      // data.response.groups[0].items
    //      $.getJSON(searchUrl)
@@ -59,7 +59,7 @@ var ViewModel = function() {
    //                  place.name = item.venue.name;
    //                  place.geocode = {};
    //                  place.geocode.lat = item.venue.location.lat;
-   //                  place.geocode.lng = item.venue.location.lng; 
+   //                  place.geocode.lng = item.venue.location.lng;
    //                  // This shall be changed later!
    //                  place.type = "bar";
    //                  places.push(place);
@@ -88,7 +88,7 @@ var ViewModel = function() {
         marker.setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(function() {
             marker.setAnimation(null);
-        }, 1000);           
+        }, 1000);
         // End bouncing if you close the infoWindow before the default effect period comes to an end
         // TODO: why you have to return a function within the function?
         // TODO: why you cannot use this for the marker?
@@ -116,9 +116,9 @@ var ViewModel = function() {
 
         var infoWindowContent;
         infoWindowContent = '<div class="infoWindowContent">';
-        
+
         infoWindowContent += '<div class="infoWindowHeader">';
-        if (marker.fourSquareData.url) { 
+        if (marker.fourSquareData.url) {
             infoWindowContent += '<a href="' + marker.fourSquareData.url +'">';
             infoWindowContent +=  marker.title + '</a>';
         } else {
@@ -132,7 +132,7 @@ var ViewModel = function() {
 
         infoWindowContent += ' ';
         infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
-        
+
         /*************  Google StreetView   **************/
         var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
         streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
@@ -148,7 +148,7 @@ var ViewModel = function() {
             infoWindowContent += '<div class="venueImg"><img src=' + photoUrl + '>' + '</div>'
         }
 
-        infoWindowContent += '</div>' 
+        infoWindowContent += '</div>'
 
 
         infoWindow.setContent(infoWindowContent);
@@ -175,11 +175,11 @@ var ViewModel = function() {
 
         // Now the intent is the default option, checkin.
         // TODO: suppose neither the fourSquareID nor the geocode is in the the model...
-        /* TODO: this is tricky because you have to think how you are going to ensure 
+        /* TODO: this is tricky because you have to think how you are going to ensure
          * all the returned locations are what you really like
          * and the returned categories could decide the icons
          */
-        var searchUrl = 'https://api.foursquare.com/v2/venues/search?'; 
+        var searchUrl = 'https://api.foursquare.com/v2/venues/search?';
         searchUrl += 'll=' + map.getCenter().lat() + ',' + map.getCenter().lng();
         searchUrl += '&query=' + marker.title;
         searchUrl += '&limit=2';
@@ -188,7 +188,7 @@ var ViewModel = function() {
         searchUrl += '&v=20151124';
 
         /* If the Id is available, get the complete venue reponse. In any event,
-         * there should be checks on if a specific data point, like photos, 
+         * there should be checks on if a specific data point, like photos,
          * is available before using
          */
         if (marker.apiData.fourSquareId) {
@@ -275,9 +275,9 @@ var ViewModel = function() {
 
     // Search for currentMarkers, and set them visible in the meantime.
     self.searchInput = ko.observable('');
-    /* This is computed from the markers computed observable for convenience in 
+    /* This is computed from the markers computed observable for convenience in
      * setting the markers visible or invisible.
-     */   
+     */
     self.currentMarkers = ko.computed(function() {
         // Close the infowindow as this obervable changes value
         infoWindow.close();
