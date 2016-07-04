@@ -14,11 +14,11 @@
         <div class="menu">
             <label class="menu-toggle" for="menu"><span>Toggle</span></label>
             <div class="search-bar">
-                <input type="search" data-bind="textInput: searchInput" value="Search a place"/>
+                <input type="search" data-bind="textInput: searchQuery" value="Search a place"/>
             </div>
-            <div class="list-div">   
-            <ul data-bind="foreach: currentMarkers">
-                <li data-bind="text: $data.title, click: $root.setInfoWindow"></li>
+            <div class="list-div">
+            <ul data-bind="foreach: searchedPlaces">
+                <li data-bind="text: $data.name, click: $root.onPlaceClicked"></li>
             </ul>
             </div>
         </div>
