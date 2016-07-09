@@ -119,3 +119,14 @@ gulp.task('serve', function(cb) {
     return gulpSequence('ngrok-serve', ['open-local', 'open-external'], cb);
 });
 
+// Testing mode
+gulp.task('test', function() {
+    browserSync.init({
+        port: portVal,
+        open: 'local',
+        browser: 'Google Chrome Canary',
+        server: {
+            baseDir: 'src/',
+        }
+    });
+});
