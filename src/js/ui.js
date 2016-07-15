@@ -10,6 +10,8 @@ var listCheckBoxes = $("input[name=menu]");
  * the leftmost marker will still be behind the list
  * in iPhone 5, the label would cover an infowindow on the upperleft corner
  */
-if (window.innerWidth < 960) {
-    listCheckBoxes.prop('checked', false);
-}
+// if (window.innerWidth < 960) {
+//     listCheckBoxes.prop('checked', false);
+// } else {
+// 	listCheckBoxes.prop('checked', true);
+// }

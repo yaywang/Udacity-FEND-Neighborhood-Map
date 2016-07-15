@@ -17,9 +17,9 @@
                 <input type="search" data-bind="textInput: searchQuery" value="Search a place"/>
             </div>
             <div class="list-div">
-            <ul data-bind="foreach: searchedPlaces">
-                <li data-bind="text: $data.name, click: $root.onPlaceClicked"></li>
-            </ul>
+                <ul data-bind="foreach: searchedPlaces">
+                    <li data-bind="text: $data.name, click: $root.onPlaceClicked"></li>
+                </ul>
             </div>
         </div>
         <!-- The inline-block div gap hack. Beautifiers will break this !!!
