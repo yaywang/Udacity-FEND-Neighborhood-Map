@@ -131,12 +131,14 @@ var MapVM = function() {
             lng: 100.57712881481939
     };
 
-    var map = new google.maps.Map(document.getElementById('map'), {
+    var mapOptions = {
         center: mapCenter,
         zoom: 17,
         mapTypeControl: false,
         styles: paleDownMapTypeArray
-    });
+    };
+
+    var map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
     var infoWindow = new google.maps.InfoWindow({
         content: ''
@@ -146,9 +148,8 @@ var MapVM = function() {
     //     console.log(map.getCenter().lat(), map.getCenter().lng());
     // })
 
-    // TODO: also reset the zoom level
     $('#recenterMap').click(function() {
-        map.setCenter(new google.maps.LatLng(mapCenter.lat, mapCenter.lng));
+        map.setOptions(mapOptions);
     });
 
     var Marker = function(place) {
@@ -160,7 +161,7 @@ var MapVM = function() {
             processedIconList[type] = new google.maps.MarkerImage(iconList[type].url, null, null, null, new google.maps.Size(36, 36));
         }
 
-        var marker = new google.maps.Marker({
+        var marker = new google. maps.Marker({
             position: place.geocode,
             title: place.name,
             icon: processedIconList[place.type]
@@ -273,7 +274,7 @@ var MenuVM = function() {
 
     self.searchQuery = ko.observable('');
 
-    var searchedPlaces = ko.computed(function() {
+    self.searchedPlaces = ko.computed(function() {
         return places().filter(function(place) {
             return place.name.toLowerCase().indexOf(self.searchQuery()) >= 0;
         });
