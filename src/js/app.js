@@ -2,12 +2,12 @@
 // TODO: link the places observable to dynamically added locations.
 // TODO: when you click on a place, the upper-right menu tab becomes transparent.
 // TODO: minimize the title on Google StreetView images.
-// TODO: add scale to the map
+// TODO: add scale to the map.
 // TODO: ensure there are some markers even before sign-in.
 // TODO: handle the absence of some data before sign-in
 // TODO: rename icon-heart to like-icon.
 /* TODO: make a place object and define composeInfoWindowContent and addAsyncData
- *       as methods
+ *       as methods.
  */
 
 "use strict";
@@ -50,7 +50,7 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += ' ';
     infoWindowContent += '<h5>' + place.fourSquareData.location.address + '</h5>';
 
-    /*************  Google StreetView   **************/
+    /**************  Google StreetView   ***************/
     var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
     streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
     streetViewUrl += '&location=' + place.geocode.lat + ',' + place.geocode.lng;
@@ -78,17 +78,16 @@ helpers.composeInfoWindowContent = function(place) {
     return infoWindowContent;
 };
 
-// Make API calls and store the results as the place's property
+// Make API calls and store the results as the place object's property
 // The callback takes a place as an argument
 helpers.addAsyncData = function(place, callback) {
-    /****************** Foursquare API call. ******************/
+    /*************** Foursquare API call. ***************/
     var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ',
         clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN',
         searchUrl;
 
     // TODO: suppose neither the fourSquareID nor the geocode is in the the model...
     /* TODO: Ensure the returned locations are what you really like
-     * TODO: make the process to decide the icons more efficient
      */
     searchUrl += 'https://api.foursquare.com/v2/venues/search?';
     searchUrl += 'll=' + place.geocode.lat + ',' + place.geocode.lng;
@@ -161,7 +160,7 @@ var MapVM = function() {
             processedIconList[type] = new google.maps.MarkerImage(iconList[type].url, null, null, null, new google.maps.Size(36, 36));
         }
 
-        var marker = new google. maps.Marker({
+        var marker = new google.maps.Marker({
             position: place.geocode,
             title: place.name,
             icon: processedIconList[place.type]
@@ -239,41 +238,18 @@ var MapVM = function() {
 
 var MenuVM = function() {
     var self = this;
-    // Firebase references for the entire Knockout app
+    // Firebase references
     var placesRef = firebase.database().ref('places/');
 
-    // Retrieve places from the Firebase database
+    // Dynamically retrieve places from the Firebase database
     var places = ko.observableArray([]);
     placesRef.on('value', function(snapshot) {
         places(snapshot.val());
     });
 
-    // // Like a place
-    // var likedPlacesRef = ko.computed(function() {
-    //     var uid = currentUserId();
-    //     return firebase.database().ref('users/' + uid + '/likedPlaces')
-    // });
-
-    // var likedPlaces = ko.observableArray([]);
-    // likedPlacesRef().once('value', function(snapshot) {
-    //     likedPlaces(snapshot.val());
-    // });
-
-    // function like(place) {
-    //     var heartIcon = $('.icon-heart');
-    //     if (heartIcon.css('color') == '606060') {
-    //         // TODO: Cancel like status
-    //     } else {
-    //         console.log('Icon-heart color: ' + heartIcon.css('color'));
-    //         console.log('liked');
-    //         heartIcon.css('color', '606060');
-    //         // TODO: restructure markers/places computed arrays, so the places could be easily matched
-    //         likedPlacesRef().push(marker.getTitle());
-    //     }
-    // }
-
     self.searchQuery = ko.observable('');
 
+    // Places left on screen by the search functionality
     self.searchedPlaces = ko.computed(function() {
         return places().filter(function(place) {
             return place.name.toLowerCase().indexOf(self.searchQuery()) >= 0;
@@ -284,7 +260,8 @@ var MenuVM = function() {
         shouter.notifySubscribers(newPlaces, 'newPlacesSearched');
     });
 
-    // To access .subscribe() method, this cannot be defined as a var
+    // The place that's clicked, including through mapVM
+    // To access .subscribe() method, this observable cannot be defined as a var
     self.clickedPlace = ko.observable('');
 
     self.clickedPlace.subscribe(function(newPlace) {
