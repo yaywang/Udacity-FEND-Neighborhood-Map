@@ -5,7 +5,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Thong Lor Map</title>
-    <link rel="stylesheet" href="css/san-francisco-font.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -15,12 +14,12 @@
         <div class="menu">
             <label class="menu-toggle" for="menu"><span>Toggle</span></label>
             <div class="search-bar">
-                <input type="search" data-bind="textInput: searchInput" value="Search a place"/>
+                <input type="search" data-bind="textInput: searchQuery" value="Search a place"/>
             </div>
-            <div class="list-div">   
-            <ul data-bind="foreach: currentMarkers">
-                <li data-bind="text: $data.title, click: $root.setInfoWindow"></li>
-            </ul>
+            <div class="list-div">
+                <ul data-bind="foreach: searchedPlaces">
+                    <li data-bind="text: $data.name, click: $root.onPlaceClicked"></li>
+                </ul>
             </div>
         </div>
         <!-- The inline-block div gap hack. Beautifiers will break this !!!
@@ -28,6 +27,7 @@
         <div class="mapDiv">
             <div id="map">
             </div>
+            <span id="recenterMap"></span>
         </div>
 
         <button id="sign-in-button">Sign In</button>
@@ -46,11 +46,11 @@
         };
         firebase.initializeApp(config);
     </script>
-    <script src="js/firebaseApp.js"></script>
-    
     <script src="js/jquery-1.11.3.min.js"></script>
     <script src="js/knockout-3.2.0.js"></script>
     <script src="js/mapStyle.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/firebaseApp.js"></script>
     <script src="js/app.js"></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE&libraries=places&amp;callback=init" onerror="googleError()"></script>
 </body>

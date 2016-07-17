@@ -1,106 +1,29 @@
-// TODO: understanding the synchronousy issues for gulp tasks
-// TODO: see if it's really possible to watch
-
-
 var gulp = require('gulp'),
+    exit = require('gulp-exit'),
     del = require('del'),
     open = require('gulp-open'),
     browserSync = require('browser-sync').create(),
     ngrok = require('ngrok'),
     psi = require('psi'),
-    sequence = require('run-sequence'),
-    minifyHtml = require('gulp-minify-html'),
-    minifyCss = require('gulp-minify-css'),
+    gulpSequence = require('gulp-sequence'),
+    htmlmin = require('gulp-htmlmin'),
+    cleanCSS = require('gulp-clean-css'),
     uglify = require('gulp-uglify'),
     imageop = require('gulp-image-optimization');
 
 var site = '',
     portVal = 8000;
 
-// Watch, as much as living editting as possible
-// Browser-sync configs
-gulp.task('serveSrc', function(cb) {
-    browserSync.init({
-        port: portVal,
-        open: 'local',
-        browser: 'Google Chrome Canary',
-        server: {
-            baseDir: 'src/',
-        }
-    });
-});
-
-// Watch all files
-gulp.task('watch', ['serveSrc'], function() {
-    gulp.watch(['src/**/*.html', 'src/**/*.js', 'src/**/*.css']).on('change', browserSync.reload);
-})
-
-// Browser-sync configs
-
-gulp.task('index', function() {
-    return browserSync.init({
-        port: portVal,
-        open: false,
-        server: {
-            baseDir: 'dist',
-        }
-    });
-});
-
-// All subtasks for printing Google PageSpeed Index scores
-
-gulp.task('ngrok-url', function(cb) {
-    return ngrok.connect(portVal, function(err, url) {
-        site = url;
-        // TODO: prettify this log.
-        console.log('Serving your tunnel from: ' + site);
-        cb();
-    });
-});
-
-// TODO: cb, what the hell? Figure out how gulp deals with callbacks
-gulp.task('psi-mobile', function(cb) {
-    return psi.output(site, {
-        nokey: 'true',
-        strategy: 'mobile'
-    });
-});
-
-gulp.task('psi-desktop', function(cb) {
-    return psi.output(site, {
-        nokey: 'true',
-        strategy: 'desktop'
-    });
-});
-
-// Print PSI
-gulp.task('psi-seq', function(cb) {
-    console.log('It will take 1.5mins to run Google Speed Test!');
-    return sequence(
-        'index',
-        'ngrok-url',
-        'psi-mobile',
-        'psi-desktop',
-        cb
-    );
-});
-
-// Print PSI independently
-gulp.task('psi', ['psi-seq'], function() {
-    return process.exit();
-});
-
-// All minification tasks
-
+// Minification tasks
 gulp.task('contents', function() {
     return gulp.src('src/**/*.html')
-        .pipe(minifyHtml())
+        .pipe(htmlmin())
         .pipe(gulp.dest('dist'));
 });
 
 gulp.task('styles', function() {
     return gulp.src('src/**/css/*.css')
-        .pipe(minifyCss())
+        .pipe(cleanCSS())
         .pipe(gulp.dest('dist'));
 });
 
@@ -111,44 +34,99 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('img', function() {
-    return gulp.src(['src/**/img/**/*', 'src/**/*.png'])
+    return gulp.src('src/**/*.png')
         .pipe(imageop())
         .pipe(gulp.dest('dist'));
 });
 
-// Delete the distribution folder and then build
-
-// TODO: If there's really no need to rebuild img folders. Fix that '!dist/**/img' issue
 gulp.task('clean', function() {
     return del('dist');
 });
 
+// Build the distribution version
 gulp.task('build', function(cb) {
-    return sequence('clean', ['contents', 'styles', 'scripts', 'img'], cb);
+    return gulpSequence('clean', ['contents', 'styles', 'scripts', 'img'], cb);
 });
 
-// Show psi in the terminal, open index.html in the browser
+// Browser-sync configs
+gulp.task('browser-sync-serve', ['build'], function(cb) {
+    browserSync.init({
+        port: portVal,
+        open: false,
+        server: {
+            baseDir: 'dist/'
+        }
+    }, cb);
+});
 
-gulp.task('open-index', function() {
+// All subtasks for printing Google PageSpeed Index scores
+gulp.task('ngrok-serve', ['browser-sync-serve'], function(cb) {
+    return ngrok.connect(portVal, function(err, url) {
+        site = url;
+        console.log('Serving your tunnel from: ' + site);
+        cb();
+    });
+});
+
+gulp.task('psi-mobile', function(cb) {
+    psi.output(site, {
+        nokey: 'true',
+        strategy: 'mobile',
+        threshold: '0'
+    }).then(() => { cb(); });
+});
+
+gulp.task('psi-desktop', function(cb) {
+    psi.output(site, {
+        nokey: 'true',
+        strategy: 'desktop',
+        threshold: '0'
+    }).then(() => { cb(); });
+});
+
+// Print PSI
+gulp.task('psi-seq', ['ngrok-serve'], function(cb) {
+    console.log('It will take 1.5 mins to run Google Speed Test!');
+    return gulpSequence(
+        'psi-mobile',
+        'psi-desktop',
+        cb
+    );
+});
+
+// Print PSI and then exit
+gulp.task('psi', ['psi-seq'], function() {
+    return process.exit();
+});
+
+// Open the site in browsers
+gulp.task('open-local', function() {
     return gulp.src('')
         .pipe(open({
             uri: 'http://localhost:' + portVal
         }));
 });
 
-gulp.task('open-external-url', function() {
+gulp.task('open-external', function() {
     return gulp.src('')
         .pipe(open({
             uri: site
         }));
 });
 
-// TODO: those tasks are running synchronously.
-gulp.task('serve', ['build'], function(cb) {
-    return sequence(
-        'index',
-        'ngrok-url',
-        ['open-index', 'open-external-url'],
-        cb
-    );
+// Serve the minimized version
+gulp.task('serve', function(cb) {
+    return gulpSequence('ngrok-serve', ['open-local', 'open-external'], cb);
+});
+
+// Testing mode
+gulp.task('test', function() {
+    browserSync.init({
+        port: portVal,
+        open: 'local',
+        browser: 'Google Chrome Canary',
+        server: {
+            baseDir: 'src/',
+        }
+    });
 });

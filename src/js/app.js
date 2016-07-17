@@ -1,304 +1,291 @@
-// TODO: whether to define another observable or pollute the marker class, an object defined by another app?
+// TODO: check if a user likes a location on info window opening.
 // TODO: link the places observable to dynamically added locations.
 // TODO: when you click on a place, the upper-right menu tab becomes transparent.
 // TODO: minimize the title on Google StreetView images.
+// TODO: add scale to the map.
+// TODO: ensure there are some markers even before sign-in.
+// TODO: handle the absence of some data before sign-in
+// TODO: rename icon-heart to like-icon.
+/* TODO: make a place object and define composeInfoWindowContent and addAsyncData
+ *       as methods.
+ */
 
-var ViewModel = function() {
+"use strict";
+
+var iconList = {
+    workingPlace: {
+        url: 'icons/building-24@2x.png'
+    },
+    bar: {
+        url: 'icons/bar-24@2x.png'
+    },
+    restaurant: {
+        url: 'icons/restaurant-24@2x.png'
+    },
+    grocery: {
+        url: 'icons/grocery-24@2x.png'
+    }
+};
+
+var helpers = {};
+
+helpers.composeInfoWindowContent = function(place) {
+    var infoWindowContent;
+    infoWindowContent = '<div class="infoWindowContent">';
+
+    infoWindowContent += '<div class="infoWindowHeader">';
+    if (place.fourSquareData.url) {
+        infoWindowContent += '<a href="' + place.fourSquareData.url +'">';
+        infoWindowContent +=  place.name + '</a>';
+    } else {
+        infoWindowContent +=  place.name;
+    }
+    infoWindowContent += '<span class="icon-heart"></span>';
+    infoWindowContent += '</div>';
+
+    // Popularity Indicator:
+    var checkinsCount = place.fourSquareData.stats.checkinsCount;
+    infoWindowContent += '<h5>FourSquare Checkins: ' + checkinsCount + '</h5>';
+
+    infoWindowContent += ' ';
+    infoWindowContent += '<h5>' + place.fourSquareData.location.address + '</h5>';
+
+    /**************  Google StreetView   ***************/
+    var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
+    streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
+    streetViewUrl += '&location=' + place.geocode.lat + ',' + place.geocode.lng;
+    streetViewUrl += '&fov=90&heading=235&pitch=10';
+    infoWindowContent += '<iframe width="150" height="150" frameborder="0" style="border:0"';
+    infoWindowContent += 'src="' + streetViewUrl;
+    infoWindowContent += '" allowfullscreen></iframe>';
+
+    // If the complete fourSquareData with photos is returned, display the best photo
+    infoWindowContent += '<div class="venueImg">';
+    for (var i = 0; i < 6; i+=2) {
+        var photoEntry1 = place.fourSquareData.photos.groups[0].items[i];
+        var photoEntry2 = place.fourSquareData.photos.groups[0].items[i + 1];
+        if (photoEntry1 && photoEntry2) {
+            // Make sure there're always two pictures on a single row.
+            [photoEntry1, photoEntry2].forEach(function(photoEntry) {
+                var photoUrl = photoEntry.prefix + '100x100' + photoEntry.suffix;
+                infoWindowContent += '<img src=' + photoUrl + '>';
+            });
+        }
+    }
+    infoWindowContent += '</div>';
+
+    infoWindowContent += '</div>';
+    return infoWindowContent;
+};
+
+// Make API calls and store the results as the place object's property
+// The callback takes a place as an argument
+helpers.addAsyncData = function(place, callback) {
+    /*************** Foursquare API call. ***************/
+    var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ',
+        clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN',
+        searchUrl;
+
+    // TODO: suppose neither the fourSquareID nor the geocode is in the the model...
+    /* TODO: Ensure the returned locations are what you really like
+     */
+    searchUrl += 'https://api.foursquare.com/v2/venues/search?';
+    searchUrl += 'll=' + place.geocode.lat + ',' + place.geocode.lng;
+    searchUrl += '&query=' + place.name;
+    searchUrl += '&limit=2';
+    /* If the Id is available, get the complete venue reponse.
+     * Always check if a specific data point is available before using
+     */
+    if (place.apiData.fourSquareId) {
+        searchUrl = 'https://api.foursquare.com/v2/venues/';
+        searchUrl += place.apiData.fourSquareId + '?';
+    }
+    searchUrl += '&client_id=' + clientId;
+    searchUrl += '&client_secret=' + clientSecret;
+    searchUrl += '&v=20151124';
+
+    $.getJSON(searchUrl)
+        .done(function(data) {
+            place.fourSquareData = data.response.venue[0] || data.response.venue;
+            for (var i = 0; i < data.response.venues; i++) {
+                if (data.response.venues[i]._id === place.apiData.fourSquareId) {
+                    place.fourSquareData = data.response.venues[i];
+                }
+            }
+            callback(place);
+        })
+        .fail(function(error) {
+            place.fourSquareData = false;
+        });
+};
+
+var shouter = new ko.subscribable();
+
+var MapVM = function() {
     var self = this;
 
-    // Retrieve places from Firebase database
-    var places = ko.observableArray([]);
-    var placesRef = firebase.database().ref('places/');
-    placesRef.on('value', function(snapshot) {
-        places(snapshot.val());
-    });
-    // TODO: add personsalized place data
-
     // Instantiate Google Maps objects
-    var map = new google.maps.Map(document.getElementById('map'), {
-        center: {
-            lat: 13.732065,
-            lng: 100.576528
-        },
-        zoom: 16,
+    var mapCenter = {
+            lat: 13.7323776648197,
+            lng: 100.57712881481939
+    };
+
+    var mapOptions = {
+        center: mapCenter,
+        zoom: 17,
         mapTypeControl: false,
         styles: paleDownMapTypeArray
-    });
+    };
 
-    /****************** Trial code to add places dynamically ******************/
-   // TODO: !!! This depends on places being an observable !!!
-   //
-   // // Populate the dynamic model
-   //  map.addListener('center_changed', function() {
-   //      var newCenter = {
-   //          lat: map.getCenter().lat(),
-   //          lng: map.getCenter().lng()
-   //      };
-
-   //      // API request to acquire new locations
-   //      var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ';
-   //      var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
-
-   //      var searchUrl = 'https://api.foursquare.com/v2/venues/explore?';
-   //      searchUrl += 'll=' + newCenter.lat + ',' + newCenter.lng;
-   //      searchUrl += '&query=coffee';
-   //      // Here only the last query item is remembered
-   //      // searchUrl += '&query=restaurant';
-   //      // searchUrl += '&query=coworking';
-   //      searchUrl += '&client_id=' + clientId;
-   //      searchUrl += '&client_secret=' + clientSecret;
-   //      searchUrl += '&v=20151124';
-
-   //      // Response data structure:
-   //      // data.response.groups[0].items
-   //      $.getJSON(searchUrl)
-   //          .done(function(data) {
-   //              // console.log(data.response.groups[0].items);
-   //              data.response.groups[0].items.forEach(function(item) {
-   //                  var place = {};
-   //                  place.name = item.venue.name;
-   //                  place.geocode = {};
-   //                  place.geocode.lat = item.venue.location.lat;
-   //                  place.geocode.lng = item.venue.location.lng;
-   //                  // This shall be changed later!
-   //                  place.type = "bar";
-   //                  places.push(place);
-   //              })
-   //          })
-   //          .fail(function(error) {
-   //          });
-   //  });
+    var map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
     var infoWindow = new google.maps.InfoWindow({
         content: ''
     });
 
-    // Access the checkboxes for controlling the list
-    var listCheckBoxes = $("input[name=menu]");
+    // map.addListener('center_changed', function() {
+    //     console.log(map.getCenter().lat(), map.getCenter().lng());
+    // })
 
-    /* Execute on each marker's click event, add in markers array
-     * and bind to click event on list elements
-     */
-    self.setInfoWindow = function(marker) {
-        for (var i = 0; i < markers().length; i++) {
-            markers()[i].setAnimation(null);
+    $('#recenterMap').click(function() {
+        map.setOptions(mapOptions);
+    });
+
+    var Marker = function(place) {
+        // Ensure all the icons have the right sizes
+        var processedIconList = {};
+        for (var type in iconList) {
+            // TODO: see how to use continue
+            if (!iconList.hasOwnProperty(type)) continue;
+            processedIconList[type] = new google.maps.MarkerImage(iconList[type].url, null, null, null, new google.maps.Size(36, 36));
         }
 
-        // Set off marker bouncing.
+        var marker = new google.maps.Marker({
+            position: place.geocode,
+            title: place.name,
+            icon: processedIconList[place.type]
+        });
+
+        marker.addListener('click', function() {
+            function notifyNewPlace() {
+                shouter.notifySubscribers(place, 'newPlaceClicked');
+            }
+            helpers.addAsyncData(place, notifyNewPlace);
+        });
+
+        this.googleMarker = marker;
+        this.id = place.apiData.fourSquareId;
+        if (place.fourSquareData) {
+            this.infoWindowContent = helpers.composeInfoWindowContent(place);
+        }
+    };
+
+    Marker.prototype.bounce = function() {
+        var marker = this.googleMarker;
         marker.setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(function() {
             marker.setAnimation(null);
         }, 1000);
-        // End bouncing if you close the infoWindow before the default effect period comes to an end
-        // TODO: why you have to return a function within the function?
-        // TODO: why you cannot use this for the marker?
-        // TODO: read more about IFFE and scoping, and then think again.
-        infoWindow.addListener('closeclick', (function(markerCopy) {
-            return function() {
-                markerCopy.setAnimation(null);
-            }
-        })(marker));
-
-        // Turn off the checkBox for controlling the list
-        /* Once the window width is above 960 px, the list won't overlap with markers
-         * Note that this number depends on the zoom level. If it's large
-         * then some markers will be too near to the left edge
-         */
-
-        /* TODO: if you load in portrait and then flip the ipad to landscape, then
-         * the leftmost marker will still be behind the list
-         * in iPhone 5, the label would cover an infowindow on the upperleft corner
-         */
-
-        if (window.innerWidth < 960) {
-            listCheckBoxes.prop('checked', false);
-        }
-
-        var infoWindowContent;
-        infoWindowContent = '<div class="infoWindowContent">';
-
-        infoWindowContent += '<div class="infoWindowHeader">';
-        if (marker.fourSquareData.url) {
-            infoWindowContent += '<a href="' + marker.fourSquareData.url +'">';
-            infoWindowContent +=  marker.title + '</a>';
-        } else {
-            infoWindowContent +=  marker.title;
-        }
-        infoWindowContent += '</div>'
-
-        // Popularity Indicator:
-        var checkinsCount = marker.fourSquareData.stats.checkinsCount;
-        infoWindowContent += '<h5>FourSquare Checkins: ' + checkinsCount + '</h5>';
-
-        infoWindowContent += ' ';
-        infoWindowContent += '<h5>' + marker.fourSquareData.location.address + '</h5>';
-
-        /*************  Google StreetView   **************/
-        var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
-        streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
-        streetViewUrl += '&location=' + marker.geocode.lat + ',' + marker.geocode.lng;
-        streetViewUrl += '&fov=90&heading=235&pitch=10';
-        infoWindowContent += '<iframe width="150" height="150" frameborder="0" style="border:0"';
-        infoWindowContent += 'src="' + streetViewUrl;
-        infoWindowContent += '" allowfullscreen></iframe>';
-
-        // if the complete fourSquareData, the version with photos, is returned, display the best photo
-        if (marker.fourSquareData.bestPhoto) {
-            var photoUrl = marker.fourSquareData.bestPhoto.prefix + '300x300' + marker.fourSquareData.bestPhoto.suffix;
-            infoWindowContent += '<div class="venueImg"><img src=' + photoUrl + '>' + '</div>'
-        }
-
-        infoWindowContent += '</div>'
-
-
-        infoWindow.setContent(infoWindowContent);
-        infoWindow.open(map, marker);
     };
 
-    // TODO: send this to webworker, or somewhere in the backend.
-    // Make API calls and store the results as the marker's property
-    function addAsyncData(marker) {
-        /****************** Foursquare API call. ******************/
-        /* The response has some slight chance to contain unwanted locations
-         * The success callback adds an extra filter to further lower the chance.
-         */
-        var clientId = 'MYPFF3DXZ5ZG1APSZINGIEYSGIJKNXYLJPLUW25MOMSLT2JZ';
-        var clientSecret = '5S2U44PXCMR3ZE1GIDPRCRFUA53J42QQ5MTJYPPH3PXLLQKN';
-
-        // var url = 'https://api.foursquare.com/v2/venues/search?';
-        // url += 'll=' + marker.geocode.lat + ',' + marker.geocode.lng;
-        // url += '&query=' + marker.title;
-        // url += '&intent=match';
-        // url += '&client_id=' + clientId;
-        // url += '&client_secret=' + clientSecret;
-        // url += '&v=20151124';
-
-        // Now the intent is the default option, checkin.
-        // TODO: suppose neither the fourSquareID nor the geocode is in the the model...
-        /* TODO: this is tricky because you have to think how you are going to ensure
-         * all the returned locations are what you really like
-         * and the returned categories could decide the icons
-         */
-        var searchUrl = 'https://api.foursquare.com/v2/venues/search?';
-        searchUrl += 'll=' + map.getCenter().lat() + ',' + map.getCenter().lng();
-        searchUrl += '&query=' + marker.title;
-        searchUrl += '&limit=2';
-        searchUrl += '&client_id=' + clientId;
-        searchUrl += '&client_secret=' + clientSecret;
-        searchUrl += '&v=20151124';
-
-        /* If the Id is available, get the complete venue reponse. In any event,
-         * there should be checks on if a specific data point, like photos,
-         * is available before using
-         */
-        if (marker.apiData.fourSquareId) {
-            searchUrl = 'https://api.foursquare.com/v2/venues/';
-            searchUrl += marker.apiData.fourSquareId + '?';
-            searchUrl += '&client_id=' + clientId;
-            searchUrl += '&client_secret=' + clientSecret;
-            searchUrl += '&v=20151124';
-        }
-
-        $.getJSON(searchUrl)
-            .done(function(data) {
-                console.log(data);
-                marker.fourSquareData = data.response.venue[0] || data.response.venue;
-                for (var i = 0; i < data.response.venues; i++) {
-                    if (data.response.venues[i]._id === marker.apiData.fourSquareId) {
-                        marker.fourSquareData = data.response.venues[i];
-                    }
-                }
-            })
-            .fail(function(error) {
-                marker.fourSquareData = false;
-            });
-    }
-
-    // TODO: Merge markers with places. It's like keeping two copies of the model.
-    /* The array of all markers, made computed observable to respond to
-     * changes in places observable array
-     */
-    var markers = ko.computed(function() {
-        // Icons for different types of markers
-        var icons = {
-            workingPlace: {
-                url: 'icons/building-24@2x.png'
-            },
-            bar: {
-                url: 'icons/bar-24@2x.png'
-            },
-            restaurant: {
-                url: 'icons/restaurant-24@2x.png'
-            },
-            grocery: {
-                url: 'icons/grocery-24@2x.png'
-                //origin: new google.maps.Point(0, 0),
+    Marker.prototype.openInfoWindow = function() {
+        var self = this;
+        function onCloseClick() {
+                window.setTimeout(self.googleMarker.setAnimation(null), 150);
             }
-        };
-
-        // Ensure all the icons have the right sizes
-        var processedIcons = {};
-        for (var type in icons) {
-            if (!icons.hasOwnProperty(type)) continue;
-
-            processedIcons[type] = new google.maps.MarkerImage(icons[type].url, null, null, null, new google.maps.Size(36, 36));
+        if (self.infoWindowContent) {
+            infoWindow.setContent(self.infoWindowContent);
+            infoWindow.open(map, self.googleMarker);
+            infoWindow.addListener('closeclick', onCloseClick);
         }
+    };
 
-        var markers = [];
-        for (var i = 0; i < places().length; i++) {
-            var marker = new google.maps.Marker({
-                position: places()[i].geocode,
-                title: places()[i].name,
-                icon: processedIcons[places()[i].type]
-            });
+    var searchedMarkers = {};
 
-            marker.geocode = places()[i].geocode;
-            if (places()[i].apiData) {
-                marker.apiData = places()[i].apiData;
-            }
-
-            marker.addListener('click', function(markerCopy) {
-                return function() {
-                    self.setInfoWindow(markerCopy)
-            }}(marker));
-
-            marker.setMap(map);
-
-            (function(marker) {
-                addAsyncData(marker);
-            })(marker);
-
-            markers.push(marker);
-        }
-        return markers;
-    })
-
-    // Search for currentMarkers, and set them visible in the meantime.
-    self.searchInput = ko.observable('');
-    /* This is computed from the markers computed observable for convenience in
-     * setting the markers visible or invisible.
-     */
-    self.currentMarkers = ko.computed(function() {
-        // Close the infowindow as this obervable changes value
+    shouter.subscribe(function(newPlaces) {
         infoWindow.close();
 
-        var searchInput = self.searchInput().toLowerCase();
-        var currentMarkers = [];
-        for (var i = 0; i < markers().length; i++) {
-            // Search algorithm
-            if (markers()[i].title.toLowerCase().indexOf(searchInput) >= 0) {
-                currentMarkers.push(markers()[i]);
-                markers()[i].setVisible(true);
-            } else {
-                markers()[i].setVisible(false);
+        if (Object.keys(searchedMarkers).length === 0 && searchedMarkers.constructor === Object) {
+            for (var marker in searchedMarkers) {
+                marker.googleMarker.setVisible(false);
             }
         }
-        return currentMarkers;
+
+        var newMarkers = {};
+        newPlaces.forEach(function(place) {
+            var newMarker = new Marker(place);
+            newMarker.googleMarker.setMap(map);
+            newMarkers[place.apiData.fourSquareId] = newMarker;
+        });
+
+        searchedMarkers = newMarkers;
+    }, self, 'newPlacesSearched');
+
+    shouter.subscribe(function(newPlace) {
+        for (var marker in searchedMarkers) {
+            searchedMarkers[marker].googleMarker.setAnimation(null);
+        }
+
+        var clickedMarker = searchedMarkers[newPlace.apiData.fourSquareId];
+        if (clickedMarker) {
+            clickedMarker.infoWindowContent = helpers.composeInfoWindowContent(newPlace);
+
+            clickedMarker.openInfoWindow();
+            clickedMarker.bounce();
+        }
+    }, self, 'newPlaceClicked');
+};
+
+var MenuVM = function() {
+    var self = this;
+    // Firebase references
+    var placesRef = firebase.database().ref('places/');
+
+    // Dynamically retrieve places from the Firebase database
+    var places = ko.observableArray([]);
+    placesRef.on('value', function(snapshot) {
+        places(snapshot.val());
+    });
+
+    self.searchQuery = ko.observable('');
+
+    // Places left on screen by the search functionality
+    self.searchedPlaces = ko.computed(function() {
+        return places().filter(function(place) {
+            return place.name.toLowerCase().indexOf(self.searchQuery()) >= 0;
+        });
+    });
+
+    self.searchedPlaces.subscribe(function(newPlaces) {
+        shouter.notifySubscribers(newPlaces, 'newPlacesSearched');
+    });
+
+    // The place that's clicked, including through mapVM
+    // To access .subscribe() method, this observable cannot be defined as a var
+    self.clickedPlace = ko.observable('');
+
+    self.clickedPlace.subscribe(function(newPlace) {
+        function notifyNewPlace(newPlace) {
+            shouter.notifySubscribers(newPlace, 'newPlaceClicked');
+        }
+        helpers.addAsyncData(newPlace, notifyNewPlace);
+    });
+
+    self.onPlaceClicked = function(place) {
+        self.clickedPlace(place);
+        window.setTimeout(function() {
+            listCheckBoxes.prop('checked', false);
+        }, 200);
+    };
+
+    shouter.subscribe(function(newPlace) {
+        self.onPlaceClicked(newPlace);
     });
 };
 
 function init() {
-    ko.applyBindings(new ViewModel());
+    new MapVM();
+    ko.applyBindings(new MenuVM());
 }
 
 function googleError() {

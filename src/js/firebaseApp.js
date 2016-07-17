@@ -1,4 +1,5 @@
-var signInButton = document.getElementById('sign-in-button');
+var signInButton = document.getElementById('sign-in-button'),
+	currentUserId = ko.observable('');
 
 // TODO: Initiate the app's interactions with the database
 function startDatabaseQueries() {
@@ -21,6 +22,7 @@ window.addEventListener('load', function() {
 	// TODO: write the sign-out process
 	firebase.auth().onAuthStateChanged(function(user) {
 		if (user) {
+			currentUserId(user.uid);
 			writeUserData(user.uid, user.displayName, user.email);
 			startDatabaseQueries();
 		}
