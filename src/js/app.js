@@ -163,11 +163,7 @@ var MapVM = function() {
         });
 
         marker.addListener('click', function() {
-            // Notify the place object with async data added.
-            function notifyNewPlace() {
-                shouter.notifySubscribers(place, 'newPlaceClicked');
-            }
-            helpers.addAsyncData(place, notifyNewPlace);
+            shouter.notifySubscribers(place, 'newPlaceClickedViaMarker');
         });
 
         this.googleMarker = marker;
@@ -188,8 +184,8 @@ var MapVM = function() {
     Marker.prototype.openInfoWindow = function() {
         var self = this;
         function onCloseClick() {
-                // Handle the case where the user clicks to close while the marker is still bouncing.
-                window.setTimeout(self.googleMarker.setAnimation(null), 150);
+            // Handle the case where the user clicks to close while the marker is still bouncing.
+            window.setTimeout(self.googleMarker.setAnimation(null), 150);
         }
         infoWindow.setContent(self.infoWindowContent);
         infoWindow.open(map, self.googleMarker);
@@ -214,7 +210,7 @@ var MapVM = function() {
         });
 
         searchedMarkers = newMarkers;
-    }, self, 'newPlacesSearched');
+    }, self, 'newPlacesToDisplay');
 
     shouter.subscribe(function(newPlace) {
         for (var marker in searchedMarkers) {
@@ -241,16 +237,14 @@ var MenuVM = function() {
 
     self.searchQuery = ko.observable('');
 
-    // Places left on screen by the search functionality.
-    // TODO: rename search to display, something like 'newPlaceToDisplay'.
-    self.searchedPlaces = ko.computed(function() {
+    self.placesToDisplay = ko.computed(function() {
         return places().filter(function(place) {
             return place.name.toLowerCase().indexOf(self.searchQuery()) >= 0;
         });
     });
 
-    self.searchedPlaces.subscribe(function(newPlaces) {
-        shouter.notifySubscribers(newPlaces, 'newPlacesSearched');
+    self.placesToDisplay.subscribe(function(newPlaces) {
+        shouter.notifySubscribers(newPlaces, 'newPlacesToDisplay');
     });
 
     // The place that's just been clicked.
@@ -272,12 +266,9 @@ var MenuVM = function() {
         }, 200);
     };
 
-    /* TODO: add other arguments. This is necessary because the menu has to know the
-     * new place that's been clicked. Then maybe the addAsyncData in MapVM is unneccesary.
-     */
     shouter.subscribe(function(newPlace) {
         self.onPlaceClicked(newPlace);
-    });
+    }, self, 'newPlaceClickedViaMarker');
 };
 
 function init() {

@@ -17,7 +17,7 @@
                 <input type="search" data-bind="textInput: searchQuery" value="Search a place"/>
             </div>
             <div class="list-div">
-                <ul data-bind="foreach: searchedPlaces">
+                <ul data-bind="foreach: placesToDisplay">
                     <li data-bind="text: $data.name, click: $root.onPlaceClicked"></li>
                 </ul>
             </div>
