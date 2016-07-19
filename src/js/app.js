@@ -1,3 +1,4 @@
+// TODO: fix that no markers are displayed when users aren't signed in by default.
 // TODO: check if a user likes a location on info window opening.
 // TODO: link the places observable to dynamically added locations.
 // TODO: when you click on a place, the upper-right menu tab becomes transparent.
@@ -59,13 +60,13 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += 'src="' + streetViewUrl;
     infoWindowContent += '" allowfullscreen></iframe>';
 
-    // If the complete fourSquareData with photos is returned, display the best photo
+    // If the complete fourSquareData with photos is returned, display the best photo.
     infoWindowContent += '<div class="venueImg">';
     for (var i = 0; i < 6; i+=2) {
         var photoEntry1 = place.fourSquareData.photos.groups[0].items[i];
         var photoEntry2 = place.fourSquareData.photos.groups[0].items[i + 1];
         if (photoEntry1 && photoEntry2) {
-            // Make sure there're always two pictures on a single row.
+            // Ensure there're always two pictures on a single row.
             [photoEntry1, photoEntry2].forEach(function(photoEntry) {
                 var photoUrl = photoEntry.prefix + '100x100' + photoEntry.suffix;
                 infoWindowContent += '<img src=' + photoUrl + '>';
@@ -78,7 +79,7 @@ helpers.composeInfoWindowContent = function(place) {
     return infoWindowContent;
 };
 
-// Make API calls and store the results as the place object's property
+// Make API calls and store the results as the place object's property.
 // The callback takes a place as an argument
 helpers.addAsyncData = function(place, callback) {
     /*************** Foursquare API call. ***************/
@@ -87,14 +88,14 @@ helpers.addAsyncData = function(place, callback) {
         searchUrl;
 
     // TODO: suppose neither the fourSquareID nor the geocode is in the the model...
-    /* TODO: Ensure the returned locations are what you really like
+    /* TODO: Ensure the returned locations are what you really like.
      */
     searchUrl += 'https://api.foursquare.com/v2/venues/search?';
     searchUrl += 'll=' + place.geocode.lat + ',' + place.geocode.lng;
     searchUrl += '&query=' + place.name;
     searchUrl += '&limit=2';
     /* If the Id is available, get the complete venue reponse.
-     * Always check if a specific data point is available before using
+     * Always check if a specific data point is available before using.
      */
     if (place.apiData.fourSquareId) {
         searchUrl = 'https://api.foursquare.com/v2/venues/';
@@ -124,7 +125,7 @@ var shouter = new ko.subscribable();
 var MapVM = function() {
     var self = this;
 
-    // Instantiate Google Maps objects
+    // Instantiate Google Maps objects.
     var mapCenter = {
             lat: 13.7323776648197,
             lng: 100.57712881481939
@@ -143,19 +144,14 @@ var MapVM = function() {
         content: ''
     });
 
-    // map.addListener('center_changed', function() {
-    //     console.log(map.getCenter().lat(), map.getCenter().lng());
-    // })
-
     $('#recenterMap').click(function() {
         map.setOptions(mapOptions);
     });
 
     var Marker = function(place) {
-        // Ensure all the icons have the right sizes
         var processedIconList = {};
         for (var type in iconList) {
-            // TODO: see how to use continue
+            // TODO: see how to use continue.
             if (!iconList.hasOwnProperty(type)) continue;
             processedIconList[type] = new google.maps.MarkerImage(iconList[type].url, null, null, null, new google.maps.Size(36, 36));
         }
@@ -167,6 +163,7 @@ var MapVM = function() {
         });
 
         marker.addListener('click', function() {
+            // Notify the place object with async data added.
             function notifyNewPlace() {
                 shouter.notifySubscribers(place, 'newPlaceClicked');
             }
@@ -191,24 +188,22 @@ var MapVM = function() {
     Marker.prototype.openInfoWindow = function() {
         var self = this;
         function onCloseClick() {
+                // Handle the case where the user clicks to close while the marker is still bouncing.
                 window.setTimeout(self.googleMarker.setAnimation(null), 150);
-            }
-        if (self.infoWindowContent) {
-            infoWindow.setContent(self.infoWindowContent);
-            infoWindow.open(map, self.googleMarker);
-            infoWindow.addListener('closeclick', onCloseClick);
         }
+        infoWindow.setContent(self.infoWindowContent);
+        infoWindow.open(map, self.googleMarker);
+        infoWindow.addListener('closeclick', onCloseClick);
     };
 
     var searchedMarkers = {};
 
     shouter.subscribe(function(newPlaces) {
+        // Close the info window if the user forgets to.
         infoWindow.close();
 
-        if (Object.keys(searchedMarkers).length === 0 && searchedMarkers.constructor === Object) {
-            for (var marker in searchedMarkers) {
-                marker.googleMarker.setVisible(false);
-            }
+        for (var marker in searchedMarkers) {
+            marker.googleMarker.setVisible(false);
         }
 
         var newMarkers = {};
@@ -226,30 +221,28 @@ var MapVM = function() {
             searchedMarkers[marker].googleMarker.setAnimation(null);
         }
 
+        // TODO: find out about mutability problems.
         var clickedMarker = searchedMarkers[newPlace.apiData.fourSquareId];
-        if (clickedMarker) {
-            clickedMarker.infoWindowContent = helpers.composeInfoWindowContent(newPlace);
-
-            clickedMarker.openInfoWindow();
-            clickedMarker.bounce();
-        }
+        clickedMarker.infoWindowContent = helpers.composeInfoWindowContent(newPlace);
+        clickedMarker.openInfoWindow();
+        clickedMarker.bounce();
     }, self, 'newPlaceClicked');
 };
 
 var MenuVM = function() {
     var self = this;
-    // Firebase references
     var placesRef = firebase.database().ref('places/');
-
-    // Dynamically retrieve places from the Firebase database
+    // Dynamically retrieve places from the Firebase database.
     var places = ko.observableArray([]);
+
     placesRef.on('value', function(snapshot) {
         places(snapshot.val());
     });
 
     self.searchQuery = ko.observable('');
 
-    // Places left on screen by the search functionality
+    // Places left on screen by the search functionality.
+    // TODO: rename search to display, something like 'newPlaceToDisplay'.
     self.searchedPlaces = ko.computed(function() {
         return places().filter(function(place) {
             return place.name.toLowerCase().indexOf(self.searchQuery()) >= 0;
@@ -260,11 +253,11 @@ var MenuVM = function() {
         shouter.notifySubscribers(newPlaces, 'newPlacesSearched');
     });
 
-    // The place that's clicked, including through mapVM
-    // To access .subscribe() method, this observable cannot be defined as a var
+    // The place that's just been clicked.
     self.clickedPlace = ko.observable('');
 
     self.clickedPlace.subscribe(function(newPlace) {
+        // Notify the place object with async data added.
         function notifyNewPlace(newPlace) {
             shouter.notifySubscribers(newPlace, 'newPlaceClicked');
         }
@@ -273,11 +266,15 @@ var MenuVM = function() {
 
     self.onPlaceClicked = function(place) {
         self.clickedPlace(place);
+        // Hide the menu.
         window.setTimeout(function() {
             listCheckBoxes.prop('checked', false);
         }, 200);
     };
 
+    /* TODO: add other arguments. This is necessary because the menu has to know the
+     * new place that's been clicked. Then maybe the addAsyncData in MapVM is unneccesary.
+     */
     shouter.subscribe(function(newPlace) {
         self.onPlaceClicked(newPlace);
     });
