@@ -199,14 +199,13 @@ var MapVM = function() {
         infoWindow.addListener('closeclick', onInfowindowCloseClick);
     };
 
-    // TODO: use toDisplay var name.
-    var searchedMarkers = {};
+    var markersOnScreen = {};
 
     shouter.subscribe(function(newPlaces) {
         // Close the info window if the user forgets to.
         infoWindow.close();
 
-        for (var marker in searchedMarkers) {
+        for (var marker in markersOnScreen) {
             marker.googleMarker.setVisible(false);
         }
 
@@ -217,16 +216,16 @@ var MapVM = function() {
             newMarkers[place.apiData.fourSquareId] = newMarker;
         });
 
-        searchedMarkers = newMarkers;
-    }, self, 'newPlacesToDisplay');
+        markersOnScreen = newMarkers;
+    }, self, 'newPlacesOnScreen');
 
     shouter.subscribe(function(newPlace) {
-        for (var marker in searchedMarkers) {
-            searchedMarkers[marker].googleMarker.setAnimation(null);
+        for (var marker in markersOnScreen) {
+            markersOnScreen[marker].googleMarker.setAnimation(null);
         }
 
         // TODO: find out about mutability problems.
-        var clickedMarker = searchedMarkers[newPlace.apiData.fourSquareId];
+        var clickedMarker = markersOnScreen[newPlace.apiData.fourSquareId];
         clickedMarker.infoWindowContent = helpers.composeInfoWindowContent(newPlace);
         clickedMarker.openInfoWindow();
         clickedMarker.bounce();
@@ -245,14 +244,14 @@ var MenuVM = function() {
 
     self.searchQuery = ko.observable('');
 
-    self.placesToDisplay = ko.computed(function() {
+    self.placesOnScreen = ko.computed(function() {
         return places().filter(function(place) {
             return place.name.toLowerCase().indexOf(self.searchQuery()) >= 0;
         });
     });
 
-    self.placesToDisplay.subscribe(function(newPlaces) {
-        shouter.notifySubscribers(newPlaces, 'newPlacesToDisplay');
+    self.placesOnScreen.subscribe(function(newPlaces) {
+        shouter.notifySubscribers(newPlaces, 'newPlacesOnScreen');
     });
 
     // The place that's just been clicked.
