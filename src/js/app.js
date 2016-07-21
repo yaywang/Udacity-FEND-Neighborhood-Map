@@ -149,6 +149,7 @@ var MapVM = function() {
     });
 
     var Marker = function(place) {
+        var self = this;
         var processedIconList = {};
         for (var type in iconList) {
             // TODO: see how to use continue.
@@ -162,16 +163,20 @@ var MapVM = function() {
             icon: processedIconList[place.type]
         });
 
-        marker.addListener('click', function() {
-            shouter.notifySubscribers(place, 'newPlaceClickedViaMarker');
-        });
+        marker.addListener('click', self.onClick(place));
 
-        this.googleMarker = marker;
-        this.id = place.apiData.fourSquareId;
+        self.googleMarker = marker;
+        self.id = place.apiData.fourSquareId;
         if (place.fourSquareData) {
-            this.infoWindowContent = helpers.composeInfoWindowContent(place);
+            self.infoWindowContent = helpers.composeInfoWindowContent(place);
         }
     };
+
+    Marker.prototype.onClick = function(place) {
+        return function() {
+            shouter.notifySubscribers(place, 'newPlaceClickedViaMarker');
+        }
+    }
 
     Marker.prototype.bounce = function() {
         var marker = this.googleMarker;
@@ -183,15 +188,18 @@ var MapVM = function() {
 
     Marker.prototype.openInfoWindow = function() {
         var self = this;
-        function onCloseClick() {
+        infoWindow.setContent(self.infoWindowContent);
+        infoWindow.open(map, self.googleMarker);
+        function onInfowindowCloseClick() {
+            // Destroy the circular reference.
+            infoWindow = null;
             // Handle the case where the user clicks to close while the marker is still bouncing.
             window.setTimeout(self.googleMarker.setAnimation(null), 150);
         }
-        infoWindow.setContent(self.infoWindowContent);
-        infoWindow.open(map, self.googleMarker);
-        infoWindow.addListener('closeclick', onCloseClick);
+        infoWindow.addListener('closeclick', onInfowindowCloseClick);
     };
 
+    // TODO: use toDisplay var name.
     var searchedMarkers = {};
 
     shouter.subscribe(function(newPlaces) {
