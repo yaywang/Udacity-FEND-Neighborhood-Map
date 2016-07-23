@@ -1,14 +1,9 @@
-// TODO: fix that no markers are displayed when users aren't signed in by default.
 // TODO: check if a user likes a location on info window opening.
 // TODO: link the places observable to dynamically added locations.
-// TODO: when you click on a place, the upper-right menu tab becomes transparent.
+// TODO: when you click on a place, the upper-left menu tab becomes transparent.
 // TODO: minimize the title on Google StreetView images.
 // TODO: add scale to the map.
-// TODO: ensure there are some markers even before sign-in.
-// TODO: handle the absence of some data before sign-in
-// TODO: rename icon-heart to like-icon.
 /* TODO: make a place object and define composeInfoWindowContent and addAsyncData
- *       as methods.
  */
 
 "use strict";
@@ -41,7 +36,7 @@ helpers.composeInfoWindowContent = function(place) {
     } else {
         infoWindowContent +=  place.name;
     }
-    infoWindowContent += '<span class="icon-heart"></span>';
+    infoWindowContent += '<span class="like-icon"></span>';
     infoWindowContent += '</div>';
 
     // Popularity Indicator:
