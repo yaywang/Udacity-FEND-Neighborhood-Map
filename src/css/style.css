@@ -184,6 +184,7 @@ img:nth-child(odd) {
     top: 0;
     width: 60px;
     height: 60px;
+    line-height: 1.4;
     z-index: 2;
     opacity: 0.95;
     background: #fff;
