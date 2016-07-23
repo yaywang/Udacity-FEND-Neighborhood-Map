@@ -18,7 +18,7 @@ window.addEventListener('load', function() {
 
 	signInButton.click(function() {
 		if (signInButton.text() == 'Sign In') {
-			console.log('User clicked to sign in.')
+			console.log('User clicked to sign in.');
 			var provider = new firebase.auth.GoogleAuthProvider();
 			firebase.auth().signInWithPopup(provider);
 		} else {
@@ -40,10 +40,10 @@ window.addEventListener('load', function() {
 			signInButton.text('Sign out ' + firstName);
 		} else {
 	        // No user is signed in.
-	      	console.log('The user signs out.')
+	      	console.log('The user signs out.');
 			signInButton.text('Sign In');
 		}
-	})
+	});
 });
 
 

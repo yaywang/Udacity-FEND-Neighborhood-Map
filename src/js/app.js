@@ -232,7 +232,7 @@ var MenuVM = function() {
     var self = this;
     // Access DOM
     var buttons = $('.menu-toggle-button, #sign-in-button');
-    // For now, defined in ui.js: var listCheckBoxes = $("input[name=menu]");
+    // For now, defined in ui.js: var menuCheckBoxes = $("input[name=menu]");
 
     var placesRef = firebase.database().ref('places/');
     // Dynamically retrieve places from the Firebase database.
@@ -269,7 +269,7 @@ var MenuVM = function() {
         self.clickedPlace(place);
         window.setTimeout(function() {
             // Hide the menu.
-            listCheckBoxes.prop('checked', false);
+            menuCheckBoxes.prop('checked', false);
             buttons.css('opacity', 0.7);
         }, 200);
     };
