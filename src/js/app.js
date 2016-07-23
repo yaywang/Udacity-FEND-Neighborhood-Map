@@ -185,9 +185,7 @@ var MapVM = function() {
         var self = this;
         infoWindow.setContent(self.infoWindowContent);
         infoWindow.open(map, self.googleMarker);
-        function onInfowindowCloseClick() {
-            // Destroy the circular reference.
-            infoWindow = null;
+        function onInfowindowCloseClick()
             // Handle the case where the user clicks to close while the marker is still bouncing.
             window.setTimeout(self.googleMarker.setAnimation(null), 150);
         }
