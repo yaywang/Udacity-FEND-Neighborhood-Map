@@ -46,7 +46,7 @@ label:focus {
     opacity: 0.95;
 }
 
-.menu label.menu-toggle {
+.menu label.menu-toggle-button {
     position: absolute;
     right: -60px;
     width: 60px;

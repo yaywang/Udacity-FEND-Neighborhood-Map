@@ -5,6 +5,7 @@
 // TODO: add scale to the map.
 /* TODO: make a place object and define composeInfoWindowContent and addAsyncData
  */
+// TODO: simplify shouter events. Try to do with just three.
 
 "use strict";
 
@@ -170,8 +171,8 @@ var MapVM = function() {
     Marker.prototype.onClick = function(place) {
         return function() {
             shouter.notifySubscribers(place, 'newPlaceClickedViaMarker');
-        }
-    }
+        };
+    };
 
     Marker.prototype.bounce = function() {
         var marker = this.googleMarker;
@@ -185,9 +186,11 @@ var MapVM = function() {
         var self = this;
         infoWindow.setContent(self.infoWindowContent);
         infoWindow.open(map, self.googleMarker);
-        function onInfowindowCloseClick()
+        // Looks like a necessary circualar reference.
+        function onInfowindowCloseClick() {
             // Handle the case where the user clicks to close while the marker is still bouncing.
             window.setTimeout(self.googleMarker.setAnimation(null), 150);
+            shouter.notifySubscribers('', 'infoWindowClosed');
         }
         infoWindow.addListener('closeclick', onInfowindowCloseClick);
     };
@@ -227,6 +230,10 @@ var MapVM = function() {
 
 var MenuVM = function() {
     var self = this;
+    // Access DOM
+    var buttons = $('.menu-toggle-button, #sign-in-button');
+    // For now, defined in ui.js: var listCheckBoxes = $("input[name=menu]");
+
     var placesRef = firebase.database().ref('places/');
     // Dynamically retrieve places from the Firebase database.
     var places = ko.observableArray([]);
@@ -260,15 +267,22 @@ var MenuVM = function() {
 
     self.onPlaceClicked = function(place) {
         self.clickedPlace(place);
-        // Hide the menu.
         window.setTimeout(function() {
+            // Hide the menu.
             listCheckBoxes.prop('checked', false);
+            buttons.css('opacity', 0.7);
         }, 200);
     };
 
     shouter.subscribe(function(newPlace) {
         self.onPlaceClicked(newPlace);
     }, self, 'newPlaceClickedViaMarker');
+
+    shouter.subscribe(function() {
+        window.setTimeout(function() {
+            buttons.css('opacity', 'inherit');
+        }, 100);
+    }, self, 'infoWindowClosed')
 };
 
 function init() {
