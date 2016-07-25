@@ -1,3 +1,4 @@
+// TODO: change the ugly and unusable red reset button.
 // TODO: check if a user likes a location on info window opening.
 // TODO: link the places observable to dynamically added locations.
 // TODO: when you click on a place, the upper-left menu tab becomes transparent.
@@ -131,7 +132,7 @@ var MapVM = function() {
         center: mapCenter,
         zoom: 17,
         mapTypeControl: false,
-        styles: paleDownMapTypeArray
+        styles: paperMapStyle
     };
 
     var map = new google.maps.Map(document.getElementById('map'), mapOptions);
