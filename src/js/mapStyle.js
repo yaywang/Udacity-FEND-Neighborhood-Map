@@ -1,4 +1,4 @@
-// Attribution: https://snazzymaps.com/style/39/paper, with some modifications. Originally by Google.
+// Attribution: https://snazzymaps.com/style/39/paper, with modifications. Originally by Google.
 var paperMapStyle = [{
 	"featureType": "administrative",
 	"elementType": "all",
@@ -11,11 +11,11 @@ var paperMapStyle = [{
 	"stylers": [{
 		"visibility": "simplified"
 	}, {
-		"hue": "#0066ff"
+		"hue": "#f7f1e9"
 	}, {
-		"saturation": 74
+		"saturation": 0
 	}, {
-		"lightness": 100
+		"lightness": 0
 	}]
 }, {
 	"featureType": "poi",
@@ -39,7 +39,7 @@ var paperMapStyle = [{
 	}, {
 		"saturation": -85
 	}, {
-		"lightness": 61
+		"lightness": -5
 	}]
 }, {
 	"featureType": "road.highway",
@@ -73,8 +73,8 @@ var paperMapStyle = [{
 	}, {
 		"color": "#5f94ff"
 	}, {
-		"lightness": 26
+		"lightness": -20
 	}, {
 		"gamma": 5.86
 	}]
-}]
+}];
