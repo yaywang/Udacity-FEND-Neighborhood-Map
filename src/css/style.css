@@ -127,9 +127,9 @@ li:first-child {
 }
 
 .infoWindowContent {
-    width: 150px;
+    width: 500px;
     height: 374px;
-    overflow: scroll;
+    overflow-y: scroll;
     opacity: 0.9;
     margin-left: 22px;
     font-family: helvetica, sans-serif;
@@ -167,12 +167,11 @@ h5 {
 }
 
 .venueImg {
-    width: 150px;
-    height: 150px;
+    width: 90%;
 }
 
 img {
-    width: 49%;
+    width: 95%;
 }
 
 img:nth-child(odd) {

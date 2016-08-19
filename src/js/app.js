@@ -7,6 +7,7 @@
 /* TODO: make a place object and define composeInfoWindowContent and addAsyncData
  */
 // TODO: simplify shouter events. Try to do with just three.
+// TODO: add whether to display streetview to the place object.
 
 "use strict";
 
@@ -48,15 +49,6 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += ' ';
     infoWindowContent += '<h5>' + place.fourSquareData.location.address + '</h5>';
 
-    /**************  Google StreetView   ***************/
-    var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
-    streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
-    streetViewUrl += '&location=' + place.geocode.lat + ',' + place.geocode.lng;
-    streetViewUrl += '&fov=90&heading=235&pitch=10';
-    infoWindowContent += '<iframe width="150" height="150" frameborder="0" style="border:0"';
-    infoWindowContent += 'src="' + streetViewUrl;
-    infoWindowContent += '" allowfullscreen></iframe>';
-
     // If the complete fourSquareData with photos is returned, display the best photo.
     infoWindowContent += '<div class="venueImg">';
     for (var i = 0; i < 6; i+=2) {
@@ -65,12 +57,21 @@ helpers.composeInfoWindowContent = function(place) {
         if (photoEntry1 && photoEntry2) {
             // Ensure there're always two pictures on a single row.
             [photoEntry1, photoEntry2].forEach(function(photoEntry) {
-                var photoUrl = photoEntry.prefix + '100x100' + photoEntry.suffix;
+                var photoUrl = photoEntry.prefix + '500x300' + photoEntry.suffix;
                 infoWindowContent += '<img src=' + photoUrl + '>';
             });
         }
     }
     infoWindowContent += '</div>';
+
+    /**************  Google StreetView   ***************/
+    var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
+    streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
+    streetViewUrl += '&location=' + place.geocode.lat + ',' + place.geocode.lng;
+    streetViewUrl += '&fov=90&heading=235&pitch=10';
+    infoWindowContent += '<iframe width="400" height="250" frameborder="0" style="border:0"';
+    infoWindowContent += 'src="' + streetViewUrl;
+    infoWindowContent += '" allowfullscreen></iframe>';
 
     infoWindowContent += '</div>';
     return infoWindowContent;
@@ -104,6 +105,7 @@ helpers.addAsyncData = function(place, callback) {
 
     $.getJSON(searchUrl)
         .done(function(data) {
+            // Modify the info window content when place.fourSquareData does not exist.
             place.fourSquareData = data.response.venue[0] || data.response.venue;
             for (var i = 0; i < data.response.venues; i++) {
                 if (data.response.venues[i]._id === place.apiData.fourSquareId) {
@@ -203,6 +205,7 @@ var MapVM = function() {
         infoWindow.close();
 
         for (var marker in markersOnScreen) {
+            console.log(marker);
             marker.googleMarker.setVisible(false);
         }
 
