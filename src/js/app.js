@@ -272,6 +272,9 @@ var MenuVM = function() {
 
     placesRef.on('value', function(snapshot) {
         places(snapshot.val());
+    }, function(error) {
+        console.log(error);
+        alert('Firebase places data could not be fetched.');
     });
 
     self.searchQuery = ko.observable('');

@@ -1,4 +1,5 @@
 var signInButton = $('#sign-in-button'),
+	// TODO: clarify the use of this.
 	currentUserId = ko.observable('');
 
 // TODO: Initiate the app's interactions with the database
@@ -10,6 +11,9 @@ function writeUserData(userId, name, email) {
 	firebase.database().ref('users/' + userId).set({
 		username: name,
 		email: email
+	}).then(function() {}, function(error) {
+		console.log(error),
+		alert('An error has occured writing your data into the database.');
 	});
 }
 
@@ -20,12 +24,20 @@ window.addEventListener('load', function() {
 		if (signInButton.text() == 'Sign In') {
 			console.log('User clicked to sign in.');
 			var provider = new firebase.auth.GoogleAuthProvider();
-			firebase.auth().signInWithPopup(provider);
+			firebase.auth().signInWithPopup(provider).then(function() {
+				// TODO
+			}, function(error) {
+				console.log(error);
+				alert('A signin error has occured. Please reload the page.');
+			});
 		} else {
 			console.log('User clicked to sign out.');
 			firebase.auth().signOut().then(function() {
 				// TODO
-			}, function(error){});
+			}, function(error){
+				console.log(error);
+				alert('A signout error has occurred. Please reload the page.');
+			});
 		}
 	});
 
@@ -45,5 +57,4 @@ window.addEventListener('load', function() {
 		}
 	});
 });
-
 
