@@ -29,11 +29,13 @@ var iconList = {
 var helpers = {};
 
 helpers.composeInfoWindowContent = function(place) {
-    var infoWindowContent;
-    infoWindowContent = '<div class="infoWindowContent">';
+    var infoWindowContent = '';
 
+    infoWindowContent += '<div class="infoWindowContent">';
+    // TODO: this class is not currently used.
     infoWindowContent += '<div class="infoWindowHeader">';
-    if (place.fourSquareData.url) {
+    // TODO: clarify that this executive order works.
+    if (place.fourSquareData && place.fourSquareData.url) {
         infoWindowContent += '<a href="' + place.fourSquareData.url +'">';
         infoWindowContent +=  place.name + '</a>';
     } else {
@@ -42,27 +44,34 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += '<span class="like-icon"></span>';
     infoWindowContent += '</div>';
 
-    // Popularity Indicator:
-    var checkinsCount = place.fourSquareData.stats.checkinsCount;
-    infoWindowContent += '<h5>FourSquare Checkins: ' + checkinsCount + '</h5>';
+    if (place.fourSquareData.error) {
+        // Ensure that the Foursquare images and StreetView Images are in the same div.
+        infoWindowContent += '<div class="venueImg">';
+        infoWindowContent += '<p>' + place.fourSquareData.error + '</p>';
+    } else {
+        //infoWindowContent += '<div class="fourSquareContents">';
+        // Popularity Indicator:
+        var checkinsCount = place.fourSquareData.stats.checkinsCount;
+        infoWindowContent += '<h5>FourSquare Checkins: ' + checkinsCount + '</h5>';
 
-    infoWindowContent += ' ';
-    infoWindowContent += '<h5>' + place.fourSquareData.location.address + '</h5>';
+        infoWindowContent += ' ';
+        infoWindowContent += '<h5>' + place.fourSquareData.location.address + '</h5>';
 
-    // If the complete fourSquareData with photos is returned, display the best photo.
-    infoWindowContent += '<div class="venueImg">';
-    for (var i = 0; i < 6; i+=2) {
-        var photoEntry1 = place.fourSquareData.photos.groups[0].items[i];
-        var photoEntry2 = place.fourSquareData.photos.groups[0].items[i + 1];
-        if (photoEntry1 && photoEntry2) {
-            // Ensure there're always two pictures on a single row.
-            [photoEntry1, photoEntry2].forEach(function(photoEntry) {
-                var photoUrl = photoEntry.prefix + '500x300' + photoEntry.suffix;
-                infoWindowContent += '<img src=' + photoUrl + '>';
-            });
+        // If the complete fourSquareData with photos is returned, display the best photo.
+        infoWindowContent += '<div class="venueImg">';
+        for (var i = 0; i < 6; i+=2) {
+            var photoEntry1 = place.fourSquareData.photos.groups[0].items[i];
+            var photoEntry2 = place.fourSquareData.photos.groups[0].items[i + 1];
+            if (photoEntry1 && photoEntry2) {
+                // Ensure there're always two pictures on a single row.
+                [photoEntry1, photoEntry2].forEach(function(photoEntry) {
+                    var photoUrl = photoEntry.prefix + '500x300' + photoEntry.suffix;
+                    infoWindowContent += '<img src=' + photoUrl + '>';
+                });
+            }
         }
+        //infoWindowContent += '</div>';
     }
-    infoWindowContent += '</div>';
 
     /**************  Google StreetView   ***************/
     var streetViewUrl = 'https://www.google.com/maps/embed/v1/streetview?';
@@ -72,6 +81,7 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += '<iframe width="400" height="250" frameborder="0" style="border:0"';
     infoWindowContent += 'src="' + streetViewUrl;
     infoWindowContent += '" allowfullscreen></iframe>';
+    infoWindowContent += '</div>'
 
     infoWindowContent += '</div>';
     return infoWindowContent;
@@ -92,10 +102,11 @@ helpers.addAsyncData = function(place, callback) {
     searchUrl += 'll=' + place.geocode.lat + ',' + place.geocode.lng;
     searchUrl += '&query=' + place.name;
     searchUrl += '&limit=2';
-    /* If the Id is available, get the complete venue reponse.
-     * Always check if a specific data point is available before using.
-     */
+
     if (place.apiData.fourSquareId) {
+        /* If the Id is available, get the complete venue reponse.
+         * So always check if a specific data point is available before using.
+         */
         searchUrl = 'https://api.foursquare.com/v2/venues/';
         searchUrl += place.apiData.fourSquareId + '?';
     }
@@ -105,23 +116,32 @@ helpers.addAsyncData = function(place, callback) {
 
     $.getJSON(searchUrl)
         .done(function(data) {
-            // Modify the info window content when place.fourSquareData does not exist.
-            place.fourSquareData = data.response.venue[0] || data.response.venue;
-            for (var i = 0; i < data.response.venues; i++) {
-                if (data.response.venues[i]._id === place.apiData.fourSquareId) {
-                    place.fourSquareData = data.response.venues[i];
+            if (data.response.venue) {
+                place.fourSquareData = data.response.venue;
+            } else {
+                for (var i = 0; i < data.response.venues; i++) {
+                    if (data.response.venues[i]._id === place.apiData.fourSquareId) {
+                        place.fourSquareData = data.response.venues[i];
+                    }
                 }
             }
-            callback(place);
         })
         .fail(function(error) {
-            place.fourSquareData = false;
+            place.fourSquareData = {};
+            /* Error is stored here. Pay attention when functionality to push
+             * this to Firebase is introduced.
+             */
+            place.fourSquareData.error = "Foursquare API wasn't able to load.";
+            console.log('Error message logged!')
+        })
+        .always(function() {
+            callback(place);
         });
 };
 
 var shouter = new ko.subscribable();
 
-var MapVM = function() {
+var Map = function() {
     var self = this;
 
     // Instantiate Google Maps objects.
@@ -166,7 +186,12 @@ var MapVM = function() {
 
         self.googleMarker = marker;
         self.id = place.apiData.fourSquareId;
-        if (place.fourSquareData) {
+        /* Test the case if fourSquareData has been stored in the Firebase
+         * and that it is not an error message.
+         * This prepares for the functionality to push FourSquare API results
+         * to Firebase.
+         */
+        if (place.fourSquareData && !place.fourSquareData.error) {
             self.infoWindowContent = helpers.composeInfoWindowContent(place);
         }
     };
@@ -180,6 +205,7 @@ var MapVM = function() {
     Marker.prototype.bounce = function() {
         var marker = this.googleMarker;
         marker.setAnimation(google.maps.Animation.BOUNCE);
+        // All animations last for 1000ms by default.
         setTimeout(function() {
             marker.setAnimation(null);
         }, 1000);
@@ -288,11 +314,11 @@ var MenuVM = function() {
         window.setTimeout(function() {
             buttons.css('opacity', 'inherit');
         }, 100);
-    }, self, 'infoWindowClosed')
+    }, self, 'infoWindowClosed');
 };
 
 function init() {
-    new MapVM();
+    new Map();
     ko.applyBindings(new MenuVM());
 }
 
