@@ -83,6 +83,10 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += '" allowfullscreen></iframe>';
     infoWindowContent += '</div>'
 
+    infoWindowContent += '<div class="attribution">';
+    infoWindowContent += '<p>Attribution: Venue images and Street View ';
+    infoWindowContent += 'are respectively provided through Foursquare and Google; .</p></div>'
+
     infoWindowContent += '</div>';
     return infoWindowContent;
 };
