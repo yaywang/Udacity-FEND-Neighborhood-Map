@@ -166,15 +166,21 @@ h5 {
 }
 
 .venueImg {
-    width: 90%;
+    width: 450px;
 }
 
 img {
-    width: 95%;
+    width: 450px;
 }
 
 img:nth-child(odd) {
     margin-right: 2%;
+}
+
+.attribution p, h1 {
+    margin: 0;
+    font-size: 0.8em;
+    font-weight: lighter;
 }
 
 #sign-in-button {
@@ -187,10 +193,4 @@ img:nth-child(odd) {
     z-index: 2;
     opacity: 0.95;
     background: #fff;
-}
-
-.attribution p, h1 {
-    margin: 0;
-    font-size: 0.8em;
-    font-weight: lighter;
 }

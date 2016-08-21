@@ -78,14 +78,14 @@ helpers.composeInfoWindowContent = function(place) {
     streetViewUrl += 'key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE';
     streetViewUrl += '&location=' + place.geocode.lat + ',' + place.geocode.lng;
     streetViewUrl += '&fov=90&heading=235&pitch=10';
-    infoWindowContent += '<iframe width="400" height="250" frameborder="0" style="border:0"';
+    infoWindowContent += '<iframe width="450" height="250" frameborder="0" style="border:0"';
     infoWindowContent += 'src="' + streetViewUrl;
     infoWindowContent += '" allowfullscreen></iframe>';
     infoWindowContent += '</div>'
 
     infoWindowContent += '<div class="attribution">';
     infoWindowContent += '<p>Attribution: Venue images and Street View ';
-    infoWindowContent += 'are respectively provided through Foursquare and Google; .</p></div>'
+    infoWindowContent += 'are respectively provided through Foursquare and Google.</p></div>'
 
     infoWindowContent += '</div>';
     return infoWindowContent;
