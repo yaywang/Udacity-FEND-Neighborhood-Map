@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Thong Lor Map</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <input type="checkbox" id="menu" name="menu" class="menu-checkbox">
+        <div class="menu">
+            <label class="menu-toggle-button" for="menu"><span>Toggle</span></label>
+            <div class="search-bar">
+                <input type="search" data-bind="textInput: searchQuery" value="">
+            </div>
+            <div class="list-div">
+                <ul data-bind="foreach: placesOnScreen">
+                    <li data-bind="text: $data.name, click: $root.onPlaceClicked"></li>
+                </ul>
+            </div>
+        </div>
+        <!-- The inline-block div gap hack. Beautifiers will break this !!!
+        -->
+        <div class="mapDiv">
+            <div id="map">
+            </div>
+            <span id="recenterMap"></span>
+        </div>
+
+        <button id="sign-in-button">Sign In</button>
+
+        </div>
+    
+
+    <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyByhMAXNucXxPTgwAZ_UwC9nimRWCOa2aQ",
+            authDomain: "neighborhood-1245.firebaseapp.com",
+            databaseURL: "https://neighborhood-1245.firebaseio.com",
+            storageBucket: "neighborhood-1245.appspot.com",
+        };
+        firebase.initializeApp(config);
+    </script>
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/knockout-3.2.0.js"></script>
+    <script src="js/mapStyle.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/firebaseApp.js"></script>
+    <script src="js/app.js"></script>
+    <script async defer="defer" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOVXLsDsl7za9LKMI-TDWbWV1o_pa77VE&amp;libraries=places&amp;callback=init" onerror="googleError()"></script>
+</body>
+
+</html>

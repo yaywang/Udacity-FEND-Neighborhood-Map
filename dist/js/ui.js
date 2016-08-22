@@ -1,0 +1,1 @@
+var menuCheckBoxes=$("input[name=menu]");window.innerWidth<960?menuCheckBoxes.prop("checked",!1):menuCheckBoxes.prop("checked",!0);
