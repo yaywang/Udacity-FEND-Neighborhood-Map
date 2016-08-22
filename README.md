@@ -17,3 +17,7 @@ Run 'gulp psi' to host the app on ngrok and report its Google PageSpeed Insights
 Run 'gulp serve' to open the local app and ngrok-hosted app from dist folder.
 
 Go to src/data/ to see an exact copy of the initial Firebase database.
+
+#### Attribution
+
+This app uses Google APIs for map and Street View images, and FourSquare API for the venues' links, checkin counts, and images.
