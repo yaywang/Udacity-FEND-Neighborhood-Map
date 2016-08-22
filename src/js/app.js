@@ -28,6 +28,7 @@ var iconList = {
 
 var helpers = {};
 
+// Compose info window contents html from a place object.
 helpers.composeInfoWindowContent = function(place) {
     var infoWindowContent = '';
 
@@ -81,11 +82,11 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += '<iframe width="450" height="250" frameborder="0" style="border:0"';
     infoWindowContent += 'src="' + streetViewUrl;
     infoWindowContent += '" allowfullscreen></iframe>';
-    infoWindowContent += '</div>'
+    infoWindowContent += '</div>';
 
     infoWindowContent += '<div class="attribution">';
     infoWindowContent += '<p>Attribution: Venue images and Street View ';
-    infoWindowContent += 'are respectively provided through Foursquare and Google.</p></div>'
+    infoWindowContent += 'are respectively provided through Foursquare and Google.</p></div>';
 
     infoWindowContent += '</div>';
     return infoWindowContent;
@@ -132,11 +133,9 @@ helpers.addAsyncData = function(place, callback) {
         })
         .fail(function(error) {
             place.fourSquareData = {};
-            /* Error is stored here. Pay attention when functionality to push
-             * this to Firebase is introduced.
-             */
+            // Error message is stored here.
             place.fourSquareData.error = "Foursquare API wasn't able to load.";
-            console.log('Error message logged!')
+            console.log('Error message logged!');
         })
         .always(function() {
             callback(place);
@@ -210,7 +209,7 @@ var Map = function() {
         var marker = this.googleMarker;
         marker.setAnimation(google.maps.Animation.BOUNCE);
         // All animations last for 1000ms by default.
-        setTimeout(function() {
+        window.setTimeout(function() {
             marker.setAnimation(null);
         }, 1000);
     };
@@ -228,6 +227,7 @@ var Map = function() {
         infoWindow.addListener('closeclick', onInfowindowCloseClick);
     };
 
+    // Storage for all the markers being displayed on screen.
     var markersOnScreen = {};
 
     shouter.subscribe(function(newPlaces) {
@@ -236,7 +236,6 @@ var Map = function() {
 
         if (Object.keys(markersOnScreen).length === 0 && markersOnScreen.constructor === Object) {
             for (var marker in markersOnScreen) {
-                console.log(marker);
                 marker.googleMarker.setVisible(false);
             }
         }
@@ -264,11 +263,12 @@ var Map = function() {
     }, self, 'newPlaceClicked');
 };
 
-var MenuVM = function() {
+// The VM currently for everything that doesn't use Google Maps API.
+var AppVM = function() {
     var self = this;
     // Access DOM
     var buttons = $('.menu-toggle-button, #sign-in-button');
-    // For now, defined in ui.js: var menuCheckBoxes = $("input[name=menu]");
+    // Defined in ui.js: var menuCheckBoxes = $("input[name=menu]");
 
     var placesRef = firebase.database().ref('places/');
     // Dynamically retrieve places from the Firebase database.
@@ -297,7 +297,7 @@ var MenuVM = function() {
     self.clickedPlace = ko.observable('');
 
     self.clickedPlace.subscribe(function(newPlace) {
-        // Notify the place object with async data added.
+        // Notify the place object with async data added once this observable is updated.
         function notifyNewPlace(newPlace) {
             shouter.notifySubscribers(newPlace, 'newPlaceClicked');
         }
@@ -326,7 +326,7 @@ var MenuVM = function() {
 
 function init() {
     new Map();
-    ko.applyBindings(new MenuVM());
+    ko.applyBindings(new AppVM());
 }
 
 function googleError() {
