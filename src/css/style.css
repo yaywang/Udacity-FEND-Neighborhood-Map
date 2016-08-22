@@ -115,14 +115,43 @@ li:first-child {
     height: 100%;
 }
 
-#recenterMap {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: #f44336;
+.recenterMap {
+    display: none;
+    width: 29px;
+    height: 29px;
     position: absolute;
-    right: 14.5px;
-    bottom: 125px;
+    right: 10px;
+    bottom: 127px;
+}
+
+/* TODO: see how bootstrap sets the background gradient
+ * and how setting border width breaks it.
+ */
+#recenterMap {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background-color: #cccccc;
+    position: absolute;
+}
+
+button:focus {
+    outline: 0;
+}
+
+#recenterMap::after {
+    width: 19px;
+    height: 19px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    border: 2px solid #ff9800;
+    border-radius: 50%;
+    background-color: #fed89d;
+    content: "";
+    position: absolute;
+    top: 5px;
+    right: 5px;
 }
 
 .infoWindowContent {

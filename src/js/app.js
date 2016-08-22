@@ -1,4 +1,3 @@
-// TODO: change the ugly and unusable red reset button.
 // TODO: check if a user likes a location on info window opening.
 // TODO: link the places observable to dynamically added locations.
 // TODO: when you click on a place, the upper-left menu tab becomes transparent.
@@ -85,8 +84,7 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += '</div>';
 
     infoWindowContent += '<div class="attribution">';
-    infoWindowContent += '<p>Attribution: Venue images and Street View ';
-    infoWindowContent += 'are respectively provided through Foursquare and Google.</p></div>';
+    infoWindowContent += '<p>Attribution: Venue images are provided through Foursquare.</p></div>';
 
     infoWindowContent += '</div>';
     return infoWindowContent;
@@ -169,6 +167,10 @@ var Map = function() {
     $('#recenterMap').click(function() {
         map.setOptions(mapOptions);
     });
+
+    window.setTimeout(function() {
+        $('.recenterMap').css('display', 'inherit');
+    }, 1000);
 
     var Marker = function(place) {
         var self = this;
