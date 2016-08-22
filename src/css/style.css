@@ -155,7 +155,7 @@ button:focus {
 }
 
 .infoWindowContent {
-    width: 500px;
+    width: 400px;
     height: 374px;
     overflow-y: scroll;
     opacity: 0.9;
@@ -195,11 +195,12 @@ h5 {
 }
 
 .venueImg {
-    width: 450px;
+    width: 400px;
+    margin-bottom: 5px;
 }
 
 img {
-    width: 450px;
+    width: 400px;
 }
 
 .attribution p, h1 {
