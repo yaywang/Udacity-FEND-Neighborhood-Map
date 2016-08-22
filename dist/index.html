@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Thong Lor Map</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -27,7 +28,7 @@
         <div class="mapDiv">
             <div id="map">
             </div>
-            <span id="recenterMap"></span>
+            <div class="recenterMap"><button id="recenterMap"></button></div>
         </div>
 
         <button id="sign-in-button">Sign In</button>
@@ -47,6 +48,7 @@
         firebase.initializeApp(config);
     </script>
     <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script src="js/knockout-3.2.0.js"></script>
     <script src="js/mapStyle.js"></script>
     <script src="js/ui.js"></script>

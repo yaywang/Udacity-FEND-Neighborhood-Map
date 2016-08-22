@@ -57,19 +57,35 @@ helpers.composeInfoWindowContent = function(place) {
         infoWindowContent += ' ';
         infoWindowContent += '<h5>' + place.fourSquareData.location.address + '</h5>';
 
-        // If the complete fourSquareData with photos is returned, display the best photo.
-        infoWindowContent += '<div class="venueImg">';
-        for (var i = 0; i < 6; i+=2) {
-            var photoEntry1 = place.fourSquareData.photos.groups[0].items[i];
-            var photoEntry2 = place.fourSquareData.photos.groups[0].items[i + 1];
-            if (photoEntry1 && photoEntry2) {
-                // Ensure there're always two pictures on a single row.
-                [photoEntry1, photoEntry2].forEach(function(photoEntry) {
-                    var photoUrl = photoEntry.prefix + '500x300' + photoEntry.suffix;
-                    infoWindowContent += '<img src=' + photoUrl + '>';
-                });
-            }
+        // If the complete fourSquareData with photos is returned, display the best photo in Bootstrap carousel.
+        // Attribution: the code on carousel is based on example from http://getbootstrap.com/javascript/#carousel
+        infoWindowContent += '<div id="carousel" class="venueImg carousel slide" data-ride="carousel">';
+
+        var photoNum = 6;
+        function venuePhotoUrl(j) {
+            var fourSquarePhoto = place.fourSquareData.photos.groups[0].items[j];
+            var url = fourSquarePhoto.prefix + '500x300' + fourSquarePhoto.suffix;
+            return url;
         }
+
+        infoWindowContent += '<div class="carousel-inner" role="listbox">';
+        infoWindowContent += '<div class="item active">';
+        infoWindowContent += '<img src="' + venuePhotoUrl(0) + '"></div>';
+        for (var j = 1; j < photoNum; j++) {
+            infoWindowContent += '<div class="item"><img src="' + venuePhotoUrl(j) + '"></div>';
+        }
+        infoWindowContent += '</div>';
+        infoWindowContent += '<!-- Controls -->';
+        infoWindowContent += '<a class="left carousel-control" href="#carousel" ';
+        infoWindowContent += 'role="button" data-slide="prev">';
+        infoWindowContent += '<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>';
+        infoWindowContent += '<span class="sr-only">Previous</span></a>';
+        infoWindowContent += '<a class="right carousel-control" href="#carousel" role="button" data-slide="next">';
+        infoWindowContent += '<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>';
+        infoWindowContent += '<span class="sr-only">Next</span></a>';
+
+        infoWindowContent += '</div>';
+
         //infoWindowContent += '</div>';
     }
 
@@ -81,10 +97,12 @@ helpers.composeInfoWindowContent = function(place) {
     infoWindowContent += '<iframe width="450" height="250" frameborder="0" style="border:0"';
     infoWindowContent += 'src="' + streetViewUrl;
     infoWindowContent += '" allowfullscreen></iframe>';
-    infoWindowContent += '</div>';
 
     infoWindowContent += '<div class="attribution">';
     infoWindowContent += '<p>Attribution: Venue images are provided through Foursquare.</p></div>';
+    infoWindowContent += '</div>';
+
+
 
     infoWindowContent += '</div>';
     return infoWindowContent;

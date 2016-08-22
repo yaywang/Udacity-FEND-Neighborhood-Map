@@ -16,8 +16,8 @@ var site = '',
 
 // Copy files that should not be minified
 gulp.task('copy', function() {
-   return gulp.src('src/css/fonts/**/*.{ttf,woff,eot,svg}')
-   .pipe(gulp.dest('dist/css/fonts'));
+   return gulp.src('src/css/**/fonts/**/*.{ttf,woff,woff2,eot,svg}')
+   .pipe(gulp.dest('dist/css'));
 });
 
 // Minification tasks
@@ -28,9 +28,9 @@ gulp.task('contents', function() {
 });
 
 gulp.task('styles', function() {
-    return gulp.src('src/**/css/**/*.css')
+    return gulp.src(['src/css/*.css', 'src/css/bootstrap/css/*.css'])
         .pipe(cleanCSS())
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest('dist/css'));
 });
 
 gulp.task('scripts', function() {

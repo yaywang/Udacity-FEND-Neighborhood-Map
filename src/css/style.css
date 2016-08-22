@@ -202,10 +202,6 @@ img {
     width: 450px;
 }
 
-img:nth-child(odd) {
-    margin-right: 2%;
-}
-
 .attribution p, h1 {
     margin: 0;
     font-size: 0.8em;
