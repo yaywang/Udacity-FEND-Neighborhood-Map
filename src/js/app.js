@@ -254,9 +254,9 @@ var Map = function() {
         // Close the info window if the user forgets to.
         infoWindow.close();
 
-        if (Object.keys(markersOnScreen).length === 0 && markersOnScreen.constructor === Object) {
+        if (Object.keys(markersOnScreen).length !== 0 && markersOnScreen.constructor === Object) {
             for (var marker in markersOnScreen) {
-                marker.googleMarker.setVisible(false);
+                markersOnScreen[marker].googleMarker.setVisible(false);
             }
         }
 
